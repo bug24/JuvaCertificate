@@ -1,0 +1,23 @@
+{
+    "packages": [
+        {
+            "name": "phpmailer/phpmailer",
+            "version": "6.10.0",
+            "version_normalized": "6.10.0.0",
+            "dist": {
+                "type": "zip",
+                "url": "packages/phpmailer-6.10.0.zip"
+            },
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "PHPMailer\\PHPMailer\\": "src/"
+                }
+            },
+            "install-path": "../phpmailer/phpmailer"
+        }
+    ],
+    "dev": false,
+    "dev-package-names": []
+}

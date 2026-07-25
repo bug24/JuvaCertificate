@@ -1,0 +1,35 @@
+<?php
+
+return [
+    'app_env' => 'production',
+    'app_url' => 'https://cert.juvaoil.com',
+    'api_url' => 'https://cert.juvaoil.com/api',
+    'allowed_origin' => 'https://cert.juvaoil.com',
+    'db_host' => 'localhost',
+    'db_port' => '3306',
+    'db_name' => 'CPANEL_USER_juva_certify',
+    'db_user' => 'CPANEL_USER_juva_app',
+    'db_password' => 'REPLACE_WITH_UNIQUE_RANDOM_PASSWORD',
+    'session_name' => 'juva_certify_session',
+    'session_hours' => 8,
+    'remember_days' => 30,
+    'security_salt' => 'REPLACE_WITH_AT_LEAST_64_RANDOM_HEX_CHARACTERS',
+    'trusted_proxies' => [],
+    'max_json_bytes' => 1048576,
+    'mail_transport' => 'smtp',
+    'mail_reply_to' => 'juvaoil@gmail.com',
+    'smtp_host' => 'mail.cert.juvaoil.com',
+    'smtp_port' => 465,
+    'smtp_encryption' => 'ssl',
+    'smtp_username' => 'certificates@cert.juvaoil.com',
+    'smtp_password' => 'SET_IN_CPANEL_PRIVATE_CONFIG',
+    'smtp_timeout' => 15,
+    'certificate_notifications_enabled' => true,
+    'mail_from' => 'no-reply@cert.juvaoil.com',
+    'mail_from_name' => 'JUVA Certify Manager',
+    'private_storage_path' => '/home/CPANEL_USER/juva-certify-storage',
+    'reminder_days' => 30,
+    'admin_notice_email' => 'juvaoil@gmail.com',
+    // Add a temporary setup_key only for a fresh installation, then remove it.
+];
+

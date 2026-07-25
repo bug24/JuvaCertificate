@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS email_notifications (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  certificate_id BIGINT UNSIGNED NOT NULL,
+  revision SMALLINT UNSIGNED NOT NULL,
+  event_type VARCHAR(40) NOT NULL,
+  recipient_email VARCHAR(190) NOT NULL,
+  recipient_name VARCHAR(190) NULL,
+  status ENUM('pending','sending','sent','failed','cancelled') NOT NULL DEFAULT 'pending',
+  attempts SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  max_attempts SMALLINT UNSIGNED NOT NULL DEFAULT 5,
+  last_error VARCHAR(500) NULL,
+  next_attempt_at DATETIME NULL,
+  sent_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_email_notification_delivery (certificate_id, revision, event_type, recipient_email),
+  INDEX idx_email_notification_queue (status, next_attempt_at),
+  INDEX idx_email_notification_certificate (certificate_id, revision),
+  CONSTRAINT fk_email_notification_certificate FOREIGN KEY (certificate_id) REFERENCES certificates(id) ON DELETE CASCADE
+) ENGINE=InnoDB;

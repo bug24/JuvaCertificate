@@ -1,0 +1,22 @@
+﻿# Database Post-Import Checklist
+
+- [ ] HTTPS and HSTS enabled for `https://cert.juvaoil.com`
+- [ ] Least-privilege database user configured
+- [ ] `config.local.php` outside version control and inaccessible over HTTP
+- [ ] Production `app_url`, `api_url`, allowed origin, salt and cron key configured
+- [ ] Initial Super Admin created through environment bootstrap
+- [ ] Bootstrap environment variables cleared
+- [ ] `bootstrap-initial-admin.php` removed after use
+- [ ] `setup_key` removed to disable web setup
+- [ ] Dashboard shows 0 clients, equipment, inspections and certificates
+- [ ] All production-ready categories and active form versions visible
+- [ ] Inactive and legacy categories excluded from new inspections
+- [ ] Approved logos, watermark, accreditation assets and signatures uploaded
+- [ ] Certificate numbering policy approved
+- [ ] SMTP mailbox tested
+- [ ] Cron protected and scheduled
+- [ ] Private storage permissions verified
+- [ ] CCU, Chain Block, Endless Round, Flat Webbing, Eye Bolt, Hook, Lever Hoist and MPI smoke tests completed
+- [ ] QR resolves to the exact tokenized HTTPS verification page
+- [ ] PDF opens through guarded download endpoint
+- [ ] First production backup created and restore tested

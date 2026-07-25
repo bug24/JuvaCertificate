@@ -1,0 +1,30 @@
+{
+    "name":  "juva-oil/certify-manager",
+    "description":  "JUVA Oil inspection and certification manager backend dependencies",
+    "type":  "project",
+    "require":  {
+                    "phpmailer/phpmailer":  "6.10.0"
+                },
+    "config":  {
+                   "optimize-autoloader":  true,
+                   "sort-packages":  true
+               },
+    "repositories":  [
+                         {
+                             "type":  "package",
+                             "package":  {
+                                             "dist":  {
+                                                          "url":  "packages/phpmailer-6.10.0.zip",
+                                                          "type":  "zip"
+                                                      },
+                                             "name":  "phpmailer/phpmailer",
+                                             "version":  "6.10.0",
+                                             "autoload":  {
+                                                              "psr-4":  {
+                                                                            "PHPMailer\\PHPMailer\\":  "src/"
+                                                                        }
+                                                          }
+                                         }
+                         }
+                     ]
+}
