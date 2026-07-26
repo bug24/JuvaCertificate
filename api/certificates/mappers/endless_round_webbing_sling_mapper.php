@@ -32,6 +32,14 @@ function endless_round_webbing_sling_blocker(string $type, string $key, string $
 function endless_round_webbing_sling_readiness(array $inspection, array $rows, string $number, string $issuedAt, string $expiry, array $attachments = [], bool $requireEvidence = false, int $minimumEvidenceFiles = 0): array
 {
     $fields = endless_round_webbing_sling_field_map($rows);
+    $fieldLabels = [];
+    foreach ($rows as $row) {
+        $fieldKey = (string) ($row['field_key'] ?? '');
+        $fieldLabel = (string) ($row['label'] ?? '');
+        if ($fieldKey !== '' && $fieldLabel !== '') {
+            $fieldLabels[$fieldKey] = $fieldLabel;
+        }
+    }
     $missing = [];
     $errors = [];
     foreach ($rows as $row) {
@@ -88,7 +96,7 @@ function endless_round_webbing_sling_readiness(array $inspection, array $rows, s
     $blocking = $missing;
     foreach ($errors as $key => $reason) {
         $detailsStep = in_array($key, ['inspection_date','next_due_date'], true);
-        $blocking[] = endless_round_webbing_sling_blocker('validation', (string) $key, $booleanLabels[$key] ?? ucwords(str_replace('_', ' ', (string) $key)), $detailsStep ? 'Details' : 'Inspection fields', (string) $reason, $detailsStep ? 2 : 3);
+        $blocking[] = endless_round_webbing_sling_blocker('validation', (string) $key, $fieldLabels[(string) $key] ?? ucwords(str_replace('_', ' ', (string) $key)), $detailsStep ? 'Details' : 'Inspection fields', (string) $reason, $detailsStep ? 2 : 3);
     }
     return ['ready' => !$blocking, 'missing_fields' => $missing, 'missing_sections' => [], 'validation_errors' => $errors, 'blocking_items' => $blocking, 'warnings' => [], 'inspection_id' => (int) ($inspection['id'] ?? 0)];
 }
