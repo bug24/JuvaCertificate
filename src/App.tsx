@@ -14,7 +14,15 @@ type AuthUser = { id: number; name: string; email: string; username: string; sta
 type ApiResponse<T> = { data: T | null; error: string | null; validation?: Record<string, string> | null };
 type NavItem = { id: Page; label: string; icon: typeof LayoutDashboard; permission?: string };
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api";
+function defaultApiBase() {
+  const localHosts = ["127.0.0.1", "localhost"];
+  if (localHosts.includes(window.location.hostname) && window.location.port === "4175") {
+    return "http://127.0.0.1:8088/api";
+  }
+  return "/api";
+}
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || defaultApiBase();
 const navItems: NavItem[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, permission: "dashboard.view" },
   { id: "clients", label: "Clients", icon: Building2, permission: "clients.view" },
@@ -40,7 +48,29 @@ function initials(name: string) { return name.split(" ").filter(Boolean).slice(0
 function tone(status: string) { if (["Valid", "Certified", "Approved", "Active", "active"].includes(status)) return "valid"; if (["Expiring", "Due soon", "In review", "invited"].includes(status)) return "warning"; if (["Expired", "Correction", "suspended", "disabled"].includes(status)) return "danger"; return "neutral"; }
 function StatusBadge({ status }: { status: string }) { return <span className={`status-badge status-${tone(status)}`}>{status}</span>; }
 function IconButton({ children, label, onClick }: { children: ReactNode; label: string; onClick?: () => void }) { return <button className="icon-button" title={label} aria-label={label} onClick={onClick}>{children}</button>; }
-async function apiRequest<T>(path: string, options: RequestInit = {}, csrf?: string): Promise<ApiResponse<T>> { const headers = new Headers(options.headers); if (options.body && !(options.body instanceof FormData) && !headers.has("Content-Type")) headers.set("Content-Type", "application/json"); if (csrf && options.method && options.method !== "GET") headers.set("X-CSRF-Token", csrf); const r = await fetch(`${API_BASE}${path}`, { credentials: "include", ...options, headers }); const payload = await r.json().catch(() => ({ data: null, error: "Invalid server response.", validation: null })); if (!r.ok && !payload.error) payload.error = `Request failed with status ${r.status}.`; return payload; }
+async function apiRequest<T>(path: string, options: RequestInit = {}, csrf?: string): Promise<ApiResponse<T>> {
+  const headers = new Headers(options.headers);
+  if (options.body && !(options.body instanceof FormData) && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+  if (csrf && options.method && options.method !== "GET") {
+    headers.set("X-CSRF-Token", csrf);
+  }
+  const url = `${API_BASE}${path}`;
+  let r: Response;
+  try {
+    r = await fetch(url, { credentials: "include", ...options, headers });
+  } catch {
+    return {
+      data: null,
+      error: `Unable to reach the JUVA API at ${url}. Confirm PHP is running, /api is inside the document root, config.local.php exists, and the database credentials are correct.`,
+      validation: null
+    };
+  }
+  const payload = await r.json().catch(() => ({ data: null, error: "Invalid server response.", validation: null }));
+  if (!r.ok && !payload.error) payload.error = `Request failed with status ${r.status}.`;
+  return payload;
+}
 function Panel({ title, action, children, className = "" }: { title: string; action?: ReactNode; children: ReactNode; className?: string }) { return <section className={`panel ${className}`}><header className="panel-header"><h2>{title}</h2>{action}</header>{children}</section>; }
 function StatCard({ label, value, detail, icon: Icon, tone: color, onClick }: { label: string; value: string; detail: string; icon: typeof Gauge; tone: string; onClick?: () => void }) { return <button type="button" className="stat-card stat-card-action" onClick={onClick}><div className={`stat-icon stat-${color}`}><Icon size={19} /></div><div><p>{label}</p><strong>{value}</strong><span>{detail}</span></div><ChevronRight size={17} className="stat-card-arrow" /></button>; }
 function DataToolbar({ placeholder, action }: { placeholder: string; action: string }) { return <div className="data-toolbar"><label className="search-field"><Search size={16} /><input placeholder={placeholder} /></label><button className="secondary-button"><Filter size={16} /> Filters</button><button className="primary-button"><Plus size={16} /> {action}</button></div>; }
