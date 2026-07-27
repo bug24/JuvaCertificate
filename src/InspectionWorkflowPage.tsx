@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, CopyPlus, Pencil, Plus, Search, Trash2 } from "lucide-react";
 
 type RoleLike = { slug: string; permissions: string[] };
@@ -140,6 +140,7 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
   const [referencePreview, setReferencePreview] = useState("");
   const [referenceHint, setReferenceHint] = useState("Select client and category to preview the next serial.");
   const [sourceReference, setSourceReference] = useState("");
+  const wizardTopRef = useRef<HTMLDivElement | null>(null);
 
   const privilegedSubmitter = isPrivileged(user);
   const currentStepErrors = useMemo(() => stepErrors(step, form, fields, values, sections, items), [step, form, fields, values, sections, items]);
@@ -385,6 +386,7 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
     setSignature(null);
     setSourceReference(source || String(inspection.cloned_from_reference || ""));
     setStep(1);
+    window.setTimeout(() => wizardTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 40);
   }
 
   async function createInspection(submitNow: boolean): Promise<boolean> {
@@ -653,7 +655,7 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
 
   return <>
 
-    <div className="page-heading workflow-heading">
+    <div className="page-heading workflow-heading" ref={wizardTopRef}>
       <div>
         <p className="eyebrow">INSPECTION WORKFLOW</p>
         <h1>{isEditingDraft ? "Update inspection draft" : "New inspection wizard"}</h1>
