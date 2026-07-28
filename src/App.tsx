@@ -14,15 +14,8 @@ type AuthUser = { id: number; name: string; email: string; username: string; sta
 type ApiResponse<T> = { data: T | null; error: string | null; validation?: Record<string, string> | null };
 type NavItem = { id: Page; label: string; icon: typeof LayoutDashboard; permission?: string };
 
-function defaultApiBase() {
-  const localHosts = ["127.0.0.1", "localhost"];
-  if (localHosts.includes(window.location.hostname) && window.location.port === "4175") {
-    return "http://127.0.0.1:8088/api";
-  }
-  return "/api";
-}
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || defaultApiBase();
 const navItems: NavItem[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, permission: "dashboard.view" },
   { id: "clients", label: "Clients", icon: Building2, permission: "clients.view" },
