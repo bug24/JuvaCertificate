@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../_bootstrap.php';
 
 require_method('GET');
@@ -18,6 +18,6 @@ foreach ([
     $row = $pdo->query($sql)->fetch();
     $counts[$key] = (int) $row['total'];
 }
-$recent = $pdo->query('SELECT i.reference, c.name AS client_name, cat.name AS category_name, u.name AS inspector_name, i.status, i.inspection_date FROM inspections i JOIN clients c ON c.id = i.client_id JOIN certification_categories cat ON cat.id = i.category_id JOIN users u ON u.id = i.inspector_id ORDER BY i.created_at DESC LIMIT 8')->fetchAll();
+$recent = $pdo->query('SELECT i.id, i.reference, c.name AS client_name, cat.name AS category_name, u.name AS inspector_name, i.status, i.inspection_date FROM inspections i JOIN clients c ON c.id = i.client_id JOIN certification_categories cat ON cat.id = i.category_id JOIN users u ON u.id = i.inspector_id ORDER BY i.created_at DESC LIMIT 8')->fetchAll();
 $activity = $pdo->query('SELECT action, entity_type, COUNT(*) AS total FROM audit_logs GROUP BY action, entity_type ORDER BY total DESC LIMIT 8')->fetchAll();
 respond(['counts' => $counts, 'recent_inspections' => $recent, 'activity' => $activity]);
