@@ -7,7 +7,15 @@ require_method('GET');
 $user = require_auth();
 if (!has_permission($user, 'system.manage') && ($user['role']['slug'] ?? '') !== 'super-admin') api_error('Forbidden.', 403);
 
-$root = dirname(__DIR__, 3);
+$root = null;
+$cursor = __DIR__;
+for ($depth = 0; $depth <= 6; $depth++) {
+    if (is_file($cursor . DIRECTORY_SEPARATOR . 'deployment_manifest.json')) { $root = $cursor; break; }
+    $parent = dirname($cursor);
+    if ($parent === $cursor) break;
+    $cursor = $parent;
+}
+if ($root === null) api_error('Deployment manifest is unavailable.', 503);
 $public = $root . DIRECTORY_SEPARATOR . 'deployment' . DIRECTORY_SEPARATOR . 'juva-certify-cpanel-fresh' . DIRECTORY_SEPARATOR . 'public';
 $manifestPath = $root . DIRECTORY_SEPARATOR . 'deployment_manifest.json';
 if (!is_file($manifestPath)) api_error('Deployment manifest is unavailable.', 503);

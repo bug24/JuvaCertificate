@@ -1,6 +1,6 @@
 {
     "manifest_version":  "1.0",
-    "generated_at":  "2026-07-31T13:06:40.3550177Z",
+    "generated_at":  "2026-07-31T13:08:49.1243101Z",
     "root":  "deployment/juva-certify-cpanel-fresh/public",
     "files":  [
                   {
@@ -35,8 +35,8 @@
                   },
                   {
                       "relative_path":  "api/admin/deployment-status.php",
-                      "size":  2147,
-                      "sha256":  "b85d5dbe072d9f7422786ae3d3a78539f7f732ac2578fa8d961784dea496cf8f"
+                      "size":  2466,
+                      "sha256":  "cbc9a4cd37deab466668d05657b2e74df0c51a8e2625eb85a3cf71e3df3c2c34"
                   },
                   {
                       "relative_path":  "api/audit/index.php",
