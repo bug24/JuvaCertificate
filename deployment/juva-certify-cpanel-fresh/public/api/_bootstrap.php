@@ -68,14 +68,37 @@ if ($sessionStorageRoot === '') {
     }
     $sessionStorageRoot = rtrim($privateStorageRoot, "\\/") . DIRECTORY_SEPARATOR . 'sessions';
 }
-if (!is_dir($sessionStorageRoot) && !@mkdir($sessionStorageRoot, 0700, true) && !is_dir($sessionStorageRoot)) {
-    api_error('Secure session storage is unavailable.', 500);
-}
-if (!is_writable($sessionStorageRoot)) {
-    api_error('Secure session storage is not writable.', 500);
+function prepare_runtime_directory(string $path): bool
+{
+    if (!is_dir($path) && !@mkdir($path, 0775, true) && !is_dir($path)) return false;
+    if (!is_writable($path)) return false;
+    $probe = rtrim($path, "\\/") . DIRECTORY_SEPARATOR . '.juva-write-' . bin2hex(random_bytes(6));
+    $written = @file_put_contents($probe, 'ok', LOCK_EX);
+    $removed = $written !== false && @unlink($probe);
+    return $written !== false && $removed;
 }
 
-ini_set('session.save_path', $sessionStorageRoot);
+$runtimeDirectories = [
+    'sessions' => $sessionStorageRoot,
+    'logs' => rtrim($privateStorageRoot, "\\/") . DIRECTORY_SEPARATOR . 'logs',
+    'cache' => rtrim($privateStorageRoot, "\\/") . DIRECTORY_SEPARATOR . 'cache',
+    'uploads' => rtrim($privateStorageRoot, "\\/") . DIRECTORY_SEPARATOR . 'uploads',
+];
+foreach ($runtimeDirectories as $runtimeDirectory) {
+    prepare_runtime_directory($runtimeDirectory);
+}
+
+if (!prepare_runtime_directory($sessionStorageRoot)) {
+    $defaultSessionPath = trim((string) ini_get('session.save_path'));
+    if ($defaultSessionPath !== '' && prepare_runtime_directory($defaultSessionPath)) {
+        $sessionStorageRoot = $defaultSessionPath;
+    } else {
+        error_log('JUVA session storage unavailable; custom and PHP default paths failed runtime write probe.');
+        api_error('Secure session could not be started.', 503);
+    }
+}
+
+session_save_path($sessionStorageRoot);
 ini_set('session.use_cookies', '1');
 ini_set('session.use_only_cookies', '1');
 ini_set('session.use_strict_mode', '1');
