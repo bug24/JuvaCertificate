@@ -1,0 +1,6 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public/
+    - /bin/mkdir -p ${DEPLOYPATH}
+    - /bin/cp -R deployment/juva-certify-cpanel-fresh/public/. ${DEPLOYPATH}
