@@ -1,3 +1,4 @@
+// JUVA deployment runtime service
 <?php
 require_once __DIR__.'/../_bootstrap.php';
 require_once __DIR__.'/qrcode.php';
