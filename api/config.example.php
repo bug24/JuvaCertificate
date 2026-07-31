@@ -9,6 +9,8 @@ return [
     'db_user' => 'juva_certify',
     'db_password' => 'replace-with-cpanel-database-password',
     'session_name' => 'juva_certify_session',
+    // Optional. Leave blank to use <private_storage_path>/sessions.
+    'session_save_path' => '',
     'session_hours' => 8,
     'remember_days' => 30,
     'allowed_origin' => 'https://cert.juvaoil.com',

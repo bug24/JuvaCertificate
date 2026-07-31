@@ -18,6 +18,7 @@ $config = array_merge([
     'app_env' => 'production',
     'app_url' => 'https://cert.juvaoil.com',
     'session_name' => 'juva_certify_session',
+    'session_save_path' => '',
     'allowed_origin' => 'https://cert.juvaoil.com',
     'session_hours' => 8,
     'remember_days' => 30,
@@ -59,16 +60,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+$sessionStorageRoot = trim((string) ($config['session_save_path'] ?? ''));
+if ($sessionStorageRoot === '') {
+    $privateStorageRoot = trim((string) ($config['private_storage_path'] ?? ''));
+    if ($privateStorageRoot === '') {
+        $privateStorageRoot = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'juva-certify-private';
+    }
+    $sessionStorageRoot = rtrim($privateStorageRoot, "\\/") . DIRECTORY_SEPARATOR . 'sessions';
+}
+if (!is_dir($sessionStorageRoot) && !@mkdir($sessionStorageRoot, 0700, true) && !is_dir($sessionStorageRoot)) {
+    api_error('Secure session storage is unavailable.', 500);
+}
+if (!is_writable($sessionStorageRoot)) {
+    api_error('Secure session storage is not writable.', 500);
+}
+
+ini_set('session.save_path', $sessionStorageRoot);
+ini_set('session.use_cookies', '1');
+ini_set('session.use_only_cookies', '1');
+ini_set('session.use_strict_mode', '1');
+ini_set('session.cookie_httponly', '1');
+
 session_name((string) $config['session_name']);
 session_set_cookie_params([
     'lifetime' => 0,
     'path' => '/',
     'domain' => '',
-    'secure' => is_https(),
+    'secure' => is_https() || stripos((string) ($config['app_url'] ?? ''), 'https://') === 0,
     'httponly' => true,
     'samesite' => 'Strict',
 ]);
-session_start();
+if (!session_start()) {
+    api_error('Secure session could not be started.', 500);
+}
 
 function db(): PDO
 {
@@ -316,9 +340,46 @@ function require_auth(): array
 {
     $user = current_user();
     if (!$user) {
+        log_session_diagnostic('authentication_required');
         api_error('Authentication required.', 401);
     }
     return $user;
+}
+
+function session_diagnostic_context(string $event): array
+{
+    global $config;
+    $savePath = (string) ini_get('session.save_path');
+    $cookieParams = session_get_cookie_params();
+    return [
+        'event' => $event,
+        'request_path' => isset($_SERVER['REQUEST_URI']) ? parse_url((string) $_SERVER['REQUEST_URI'], PHP_URL_PATH) : '',
+        'session_name' => session_name(),
+        'session_status' => session_status(),
+        'session_id_present' => session_id() !== '',
+        'session_cookie_present' => isset($_COOKIE[session_name()]),
+        'authenticated_user_id_present' => !empty($_SESSION['user_id']),
+        'authenticated_at_present' => !empty($_SESSION['authenticated_at']),
+        'session_save_path_configured' => $savePath !== '',
+        'session_save_path_exists' => $savePath !== '' && is_dir($savePath),
+        'session_save_path_writable' => $savePath !== '' && is_dir($savePath) && is_writable($savePath),
+        'cookie_path' => $cookieParams['path'] ?? '',
+        'cookie_secure' => (bool) ($cookieParams['secure'] ?? false),
+        'cookie_httponly' => (bool) ($cookieParams['httponly'] ?? false),
+        'cookie_samesite' => $cookieParams['samesite'] ?? '',
+        'configured_session_name_matches' => hash_equals((string) ($config['session_name'] ?? ''), session_name()),
+    ];
+}
+
+function log_session_diagnostic(string $event): void
+{
+    try {
+        $directory = ensure_private_storage_dir('logs');
+        $line = '[' . gmdate('c') . '] ' . json_encode(session_diagnostic_context($event), JSON_UNESCAPED_SLASHES) . PHP_EOL;
+        file_put_contents($directory . DIRECTORY_SEPARATOR . 'session-diagnostic.log', $line, FILE_APPEND | LOCK_EX);
+    } catch (Throwable $error) {
+        error_log('Unable to write session diagnostic: ' . $error->getMessage());
+    }
 }
 
 function has_permission(array $user, string $permission): bool
@@ -364,10 +425,23 @@ function audit_log(?int $userId, string $action, ?string $entityType = null, ?in
 
 function start_auth_session(int $userId): void
 {
-    session_regenerate_id(true);
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        throw new RuntimeException('PHP session is not active.');
+    }
+    if (!session_regenerate_id(true)) {
+        throw new RuntimeException('PHP session ID could not be regenerated.');
+    }
     $_SESSION['user_id'] = $userId;
     $_SESSION['authenticated_at'] = time();
     $_SESSION['csrf_token'] = random_token(24);
+    session_write_close();
+    if (!session_start()) {
+        throw new RuntimeException('PHP session could not be reopened after authentication.');
+    }
+    if (empty($_SESSION['user_id']) || (int) $_SESSION['user_id'] !== $userId) {
+        throw new RuntimeException('Authenticated PHP session could not be persisted.');
+    }
+    log_session_diagnostic('session_started');
 }
 
 function clear_auth_session(): void
