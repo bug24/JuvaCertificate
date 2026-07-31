@@ -24,8 +24,8 @@ $result = [
     'session_directory_writable' => false,
     'session_start_successful' => false,
     'session_persistence_successful' => false,
-    'certificate_service_present' => is_file(__DIR__ . '/lib/certificate_service.php'),
-    'deployment_dependencies_complete' => is_file(__DIR__ . '/lib/certificate_service.php'),
+    'certificate_service_present' => is_file(__DIR__ . '/lib/certificate_engine.php'),
+    'deployment_dependencies_complete' => is_file(__DIR__ . '/lib/certificate_engine.php'),
 ];
 
 if (!$result['config_present']) health_response($result + ['message' => 'Application configuration is missing.'], 503);

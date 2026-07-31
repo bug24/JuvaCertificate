@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../_bootstrap.php';
-require_once __DIR__ . '/../lib/certificate_service.php';
+require_once __DIR__ . '/../lib/certificate_engine.php';
 
 require_method('POST');
 $user = require_any_permission(['inspections.edit', 'inspections.review', 'certificates.issue']);

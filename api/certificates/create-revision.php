@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../_bootstrap.php';
-require_once __DIR__ . '/../lib/certificate_service.php';
+require_once __DIR__ . '/../lib/certificate_engine.php';
 require_method('POST');
 $user=require_permission('certificates.issue');require_csrf();$input=json_input();$id=(int)($input['id']??0);$reason=normalize_text_input((string)($input['reason']??''),true);
 if($id<1||$reason===''){api_error('Certificate and revision reason are required.',422,['id'=>$id<1?'Required.':null,'reason'=>$reason===''?'Explain why a new revision is required.':null]);}

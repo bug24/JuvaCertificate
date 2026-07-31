@@ -1,6 +1,6 @@
 {
     "manifest_version":  "1.0",
-    "generated_at":  "2026-07-31T13:08:49.1243101Z",
+    "generated_at":  "2026-07-31T13:42:04.0617297Z",
     "root":  "deployment/juva-certify-cpanel-fresh/public",
     "files":  [
                   {
@@ -25,8 +25,8 @@
                   },
                   {
                       "relative_path":  "api/health.php",
-                      "size":  3943,
-                      "sha256":  "522f1c9278c2df0abbe52939dd75d262de96a7afdcaf705a82456b05fb8be983"
+                      "size":  3941,
+                      "sha256":  "c804009c709ad72395a9db64d0359268f64ea43115dd87e99479316f949fd33e"
                   },
                   {
                       "relative_path":  "api/_bootstrap.php",
@@ -125,8 +125,8 @@
                   },
                   {
                       "relative_path":  "api/certificates/create-revision.php",
-                      "size":  1040,
-                      "sha256":  "0f2c05e52f37262b88d4a02e95205e3d9b1f8dade511b46ec923335e62c6ba14"
+                      "size":  1039,
+                      "sha256":  "18df2e5048a782ba617bc3937639d8f4cb8cc1efb819c8d7e984ab52b023aeb0"
                   },
                   {
                       "relative_path":  "api/certificates/detail.php",
@@ -145,8 +145,8 @@
                   },
                   {
                       "relative_path":  "api/certificates/generate.php",
-                      "size":  683,
-                      "sha256":  "8045de7e94139380e4805e799184c1281af6af6cf4f258d111c3b5b77529b6e8"
+                      "size":  682,
+                      "sha256":  "9af1860861426096f9a6591ab4af6f29b3ab9b5f574c660020d4121ed6c3a49d"
                   },
                   {
                       "relative_path":  "api/certificates/index.php",
@@ -165,8 +165,8 @@
                   },
                   {
                       "relative_path":  "api/certificates/preview.php",
-                      "size":  10563,
-                      "sha256":  "03bcd51889a0a5bbabf4bb2774843bab6c38d47f515ef08b65cc8d353e118260"
+                      "size":  10562,
+                      "sha256":  "33177301cdb83461b7efff7f906c5300d5e78d82ac489f02ff6332a58b61d866"
                   },
                   {
                       "relative_path":  "api/certificates/qrcode.php",
@@ -175,8 +175,8 @@
                   },
                   {
                       "relative_path":  "api/certificates/readiness.php",
-                      "size":  11937,
-                      "sha256":  "49022a0723f90039520ae16c0134c0914919dfaf59f8102f9a89f6519c9935a5"
+                      "size":  11936,
+                      "sha256":  "f334c2ffd056247aa1f5cc76cb09dff9dc352aedc1ac8240fcb882e8b0eb6c28"
                   },
                   {
                       "relative_path":  "api/certificates/repair.php",
@@ -365,8 +365,8 @@
                   },
                   {
                       "relative_path":  "api/inspections/status.php",
-                      "size":  6975,
-                      "sha256":  "b4ad12a1dcbdf6c34be775496aed32be800b9a39c645a6b779442e02fa270f95"
+                      "size":  6974,
+                      "sha256":  "27d2ea9810c9857b60c4dab7cf5b5803713937e96bb67d9ba676254151ffac6c"
                   },
                   {
                       "relative_path":  "api/inspections/upload.php",
@@ -389,7 +389,7 @@
                       "sha256":  "c87e5961f94786aff3f4754324b394c085070de6599ddb630d04277b3b0966f6"
                   },
                   {
-                      "relative_path":  "api/lib/certificate_service.php",
+                      "relative_path":  "api/lib/certificate_engine.php",
                       "size":  21252,
                       "sha256":  "a572ead44256ab1e1c9330c875dc24a13dd27df7d04f06c65df2d1ea7f02a396"
                   },

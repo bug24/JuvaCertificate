@@ -38,7 +38,7 @@ function readiness_log(Throwable $exception, int $inspectionId = 0): string
 
 try {
     require_once __DIR__ . '/../_bootstrap.php';
-    require_once __DIR__ . '/../lib/certificate_service.php';
+    require_once __DIR__ . '/../lib/certificate_engine.php';
 
     require_method('GET');
     $user = require_any_permission(['certificates.view', 'certificates.issue', 'inspections.view', 'inspections.edit']);
