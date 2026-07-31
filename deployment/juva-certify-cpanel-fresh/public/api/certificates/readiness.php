@@ -80,7 +80,11 @@ try {
     $attachmentStmt->execute([$inspectionId]);
     $attachments = $attachmentStmt->fetchAll() ?: [];
 
-    $authentication = certificate_authentication_assets($inspection, $fieldRows, $attachments);
+    $authentication = [
+        'inspector_signature_path' => null,
+        'authenticator_signature_path' => null,
+        'company_stamp_path' => null,
+    ];
     $result = null;
     $preview = null;
     $requiresEvidence = (int) ($inspection['requires_evidence'] ?? 0) === 1;

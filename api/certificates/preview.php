@@ -115,7 +115,11 @@ try {
 } catch (CertificateIssueException $e) {
     api_error($e->getMessage(), $e->httpStatus(), $e->validation());
 } catch (Throwable $e) {
-    api_error('Certificate preview generation failed. No certificate was issued.', 500);
+    $reference = strtoupper(substr(hash('sha256', uniqid('preview', true)), 0, 12));
+    $line = '[' . gmdate('c') . '] preview ' . $reference . ' inspection=' . $id . ' ' . get_class($e) . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL . $e->getTraceAsString() . PHP_EOL;
+    error_log($line);
+    try { $logDir = ensure_private_storage_dir('logs'); file_put_contents($logDir . DIRECTORY_SEPARATOR . 'preview-error.log', $line, FILE_APPEND | LOCK_EX); } catch (Throwable $ignored) { error_log('Unable to write preview log ' . $reference); }
+    api_error('Certificate preview generation failed. Reference log ' . $reference . '.', 500);
 }
 if (!is_file($path) || filesize($path) < 100) api_error('Certificate preview generation did not produce a readable PDF.', 500);
 

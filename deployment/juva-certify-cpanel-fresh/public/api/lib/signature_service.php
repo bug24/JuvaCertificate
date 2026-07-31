@@ -4,6 +4,16 @@ declare(strict_types=1);
 
 function certificate_authentication_assets(array $inspection, array $fieldRows, array $attachments): array
 {
+    try {
+        return certificate_authentication_assets_unsafe($inspection, $fieldRows, $attachments);
+    } catch (Throwable $error) {
+        error_log('Optional certificate authentication assets unavailable: ' . $error->getMessage());
+        return ['inspector_signature_path'=>null,'inspector_signature_source'=>'none','inspector_signature_storage_key'=>null,'authenticator_signature_path'=>null,'authenticator_signature_source'=>'none','authenticator_signature_storage_key'=>null,'company_stamp_path'=>null,'company_stamp_storage_key'=>null,'inspector_name_snapshot'=>(string)($inspection['inspector_name']??''),'inspector_qualifications_snapshot'=>(string)($inspection['inspector_qualification']??''),'authenticator_name_snapshot'=>'','authenticator_qualifications_snapshot'=>''];
+    }
+}
+
+function certificate_authentication_assets_unsafe(array $inspection, array $fieldRows, array $attachments): array
+{
     $fields = [];
     foreach ($fieldRows as $row) {
         $fields[(string) ($row['field_key'] ?? '')] = trim((string) ($row['value_text'] ?? ''));
