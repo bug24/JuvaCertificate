@@ -16,8 +16,8 @@ $source = fetch_inspection_for_user($sourceId, $user);
 if (!$source) {
     api_error('Inspection not found.', 404);
 }
-if (!in_array((string) $source['status'], ['issued', 'expired', 'revoked'], true)) {
-    api_error('Only issued, expired or revoked inspections can be cloned for renewal.', 422, ['inspection_id' => 'This record is not eligible for renewal.']);
+if (!in_array((string) $source['status'], ['approved', 'correction', 'issued', 'expired', 'revoked'], true)) {
+    api_error('Only approved, returned, issued, expired or revoked inspections can be cloned for renewal.', 422, ['inspection_id' => 'This record is not eligible for renewal.']);
 }
 
 $clientStmt = db()->prepare('SELECT id, short_code, name FROM clients WHERE id = ? LIMIT 1');

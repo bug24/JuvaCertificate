@@ -126,7 +126,7 @@ if ($isPrivilegedSubmitter) {
         $response['auto_issued'] = true;
         $response['certificate'] = $certificate;
         audit_log((int) $user['id'], 'inspections.auto_issued', 'inspection', $id, ['from' => $current, 'to' => 'issued']);
-    } catch (CertificateIssueException $e) {
+    } catch (Throwable $e) {
         $repair = db();
         $repair->beginTransaction();
         try {
