@@ -131,7 +131,7 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
   const [lastSavedAt, setLastSavedAt] = useState("");
   const [previewUrl, setPreviewUrl] = useState("");
   const [issuedCertificate, setIssuedCertificate] = useState<RecordRow | null>(null);
-  const [statusFilter, setStatusFilter] = useState("correction");
+  const [statusFilter, setStatusFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
