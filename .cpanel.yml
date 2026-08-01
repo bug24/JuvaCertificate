@@ -1,14 +1,12 @@
 ---
-
 deployment:
   tasks:
-    - /bin/rsync -a --exclude='api/config.local.php' --exclude='uploads/' --exclude='evidence/' --exclude='sessions/' --exclude='logs/' --exclude='cache/' --exclude='private/' --exclude='storage/' deployment/juva-certify-cpanel-fresh/public/ /home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public/
+    - /bin/cp -R deployment/juva-certify-cpanel-fresh/public/. /home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public/
     - /bin/test -f /home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public/api/lib/certificate_engine.php
     - /bin/test -d /home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public/api/certificates/templates
     - /bin/test -f /home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public/fonts/DejaVuSans.ttf
     - /bin/test -f /home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public/fonts/DejaVuSans-Bold.ttf
-    - /bin/test -d /home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public/assets
     - /bin/test -f /home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public/index.html
     - /bin/test -f /home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public/.htaccess
     - /bin/test -f /home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public/api/config.local.php
-    - /bin/git -C /home1/juvaoil/juva-certify-repo rev-parse HEAD > /home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/deployment-commit.txt
+    - /bin/sh -c '/bin/git -C /home1/juvaoil/juva-certify-repo rev-parse HEAD > /home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/deployment-commit.txt'
