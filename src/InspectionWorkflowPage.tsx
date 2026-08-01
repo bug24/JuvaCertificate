@@ -465,7 +465,7 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
       }
       const submitRes = await request<{ message?: string; auto_issued?: boolean; certificate?: RecordRow | null }>(
         "/inspections/status.php",
-        { method: "POST", body: JSON.stringify({ id, status: "submitted", comment: privilegedSubmitter ? "Corrected inspection resubmitted by privileged administrator." : "Corrected inspection resubmitted for review." }) },
+        { method: "POST", body: JSON.stringify({ id, status: "submitted", create_revision: true, comment: privilegedSubmitter ? "Corrected inspection resubmitted by privileged administrator." : "Corrected inspection resubmitted for review." }) },
         csrf,
       );
       if (submitRes.error) {

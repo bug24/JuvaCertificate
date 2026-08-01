@@ -38,6 +38,7 @@ if (!in_array($status, $transitions[$current] ?? [], true)) {
 }
 
 $isPrivilegedSubmitter = $status === 'submitted' && privileged_role((string) ($user['role']['slug'] ?? ''));
+$createRevision = $isPrivilegedSubmitter && ($current === 'correction' || filter_var($input['create_revision'] ?? false, FILTER_VALIDATE_BOOLEAN));
 
 if ($status === 'submitted' && !has_permission($user, 'inspections.edit')) {
     api_error('You do not have permission to submit this inspection.', 403);
@@ -119,7 +120,7 @@ $response = [
 
 if ($isPrivilegedSubmitter) {
     try {
-        $certificate = issue_certificate($user, $id, ['certificate_number' => (string) $inspection['reference'], 'create_revision' => $current === 'correction'], ['allow_self_issue' => true]);
+        $certificate = issue_certificate($user, $id, ['certificate_number' => (string) $inspection['reference'], 'create_revision' => $createRevision], ['allow_self_issue' => true]);
         $response['message'] = 'Inspection approved and certificate issued automatically.';
         $response['inspection_status'] = 'issued';
         $response['auto_issued'] = true;
