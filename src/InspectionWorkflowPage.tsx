@@ -559,7 +559,13 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
     setMessage(`Returned inspection ${res.data.inspection.reference} loaded for correction.`);
   }
 
-  useEffect(() => { if (openInspectionId) void editInspection(openInspectionId); }, [openInspectionId]);
+  useEffect(() => {
+    if (openInspectionId) {
+      void editInspection(openInspectionId);
+      return;
+    }
+    resetWizard();
+  }, [openInspectionId]);
   useEffect(() => { if (form.id) void refreshReadiness(Number(form.id)); }, [form.id]);
 
   async function cloneInspection(id: number) {
