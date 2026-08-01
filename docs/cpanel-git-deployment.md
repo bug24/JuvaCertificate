@@ -1,20 +1,46 @@
-# JUVA cPanel Git Deployment
+﻿# cPanel Git Deployment
 
-Use one deployment model: the Git checkout is the live working tree.
+Repository path:
+`/home1/juvaoil/cert.juvaoil.com`
 
-- Repository path: `/home1/juvaoil/cert.juvaoil.com`
-- Document root: `/home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public`
-- cPanel Git Control: click **Update from Remote**, then **Deploy HEAD Commit**. `.cpanel.yml` is required by cPanel but intentionally performs no copy.
-- Application config: `/home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public/api/config.local.php`
-- Private storage: `/home1/juvaoil/juva-certify-storage`
+Live document root:
+`/home1/juvaoil/cert.juvaoil.com/deployment/juva-certify-cpanel-fresh/public`
 
-After deployment, confirm the commit with cPanel Git Control or Terminal:
+## cPanel sequence
 
-```bash
-cd /home1/juvaoil/cert.juvaoil.com
-git rev-parse HEAD
-```
+1. Create or confirm the repository path above in Git Version Control.
+2. Confirm the checked-out branch is `main`.
+3. Click **Update from Remote** to fetch and check out the latest commit.
+4. Confirm the displayed HEAD commit is the intended release.
+5. Click **Deploy HEAD Commit** only after cPanel reports a valid `.cpanel.yml` and no uncommitted changes.
+6. Do not manually copy files into the repository after deployment. Manual changes are overwritten by the next Git update.
+7. Visit `/api/health.php` and confirm database, private storage, sessions, and deployment dependencies pass.
+8. A Super Admin can inspect the authenticated deployment marker at `/api/admin/deployment-status.php`.
 
-Check health at `/api/health.php`. Super Admins can check the file manifest at `/api/admin/deployment-status.php`.
+`.cpanel.yml` deliberately performs no copy operation because the repository already contains the live tree under `deployment/juva-certify-cpanel-fresh/public`. Copying that directory back into itself would create duplicate or partial trees.
 
-Keep `api/config.local.php`, private storage, uploads, generated PDFs, QR files, logs, sessions and backups outside Git. Never add SMTP credentials or production database credentials to the repository.
+## Files outside Git
+
+Preserve these outside the repository and never overwrite them during deployment:
+
+- `/home1/juvaoil/cert.juvaoil.com/api/config.local.php`
+- `/home1/juvaoil/juva-certify-storage`
+- private uploads and evidence
+- logs
+- sessions
+- generated certificate PDFs and QR assets
+- production database
+
+The application must retain access to those paths after every pull/deploy.
+
+## Required tracked runtime
+
+The deployment tree must contain:
+
+- `public/api/`
+- `public/api/lib/certificate_engine.php`
+- `public/api/certificates/templates/`
+- `public/fonts/`
+- `public/assets/`
+- `public/.htaccess`
+- the built frontend `public/index.html` and assets
