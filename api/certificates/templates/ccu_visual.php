@@ -214,7 +214,7 @@ function ccu_render_certificate_pdf(string $path, array $payload): void
     $blue = '#193A7A';
     $muted = '#333333';
     $line = '#111111';
-    $assetDir = dirname(__DIR__, 3) . '/public/assets/certificates/ccu';
+    $assetDir = certificate_runtime_asset('assets/certificates/ccu');
 
     $sx = function (float $value): int { return (int) round($value * 1654 / 791); };
     $sy = function (float $value): int { return (int) round($value * 2339 / 1024); };
@@ -276,7 +276,7 @@ function ccu_render_certificate_pdf(string $path, array $payload): void
     $watermark = $assetDir . '/juva-oil-watermark.png';
     $putPng($watermark, $sx(150), $sy(260), $sx(500), $sy(500), 100);
 
-    $logoPath = dirname(__DIR__, 3) . '/public/logo.png';
+    $logoPath = certificate_runtime_asset('logo.png');
     imagerectangle($canvas, $sx(116), $sy(36), $sx(169), $sy(98), certificate_color($canvas, $line));
     if (is_file($logoPath)) {
         $logoInfo = @getimagesize($logoPath);

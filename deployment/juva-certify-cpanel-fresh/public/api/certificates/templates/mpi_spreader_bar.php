@@ -5,7 +5,7 @@ function mpi_spreader_bar_render_certificate_pdf(string $path,array $p):void
 {
     $im=imagecreatetruecolor(1654,2339);imagefilledrectangle($im,0,0,1654,2339,certificate_color($im,'#FFFFFF'));
     $font=certificate_find_font(false);$bold=certificate_find_font(true)?:$font;$black='#151515';$muted='#363636';$green='#08785D';$red='#B42318';
-    $asset=dirname(__DIR__,3).'/public/assets/certificates/chain-block';$fields=$p['fields'];$x=80;$w=1494;$y=70;
+    $asset=certificate_runtime_asset('assets/certificates/chain-block');$fields=$p['fields'];$x=80;$w=1494;$y=70;
     $text=function($im,string $value,int $x,int $y,int $size,string $color,?string $face,string $align='left'){certificate_draw_text($im,$value,$x,$y,$size,$color,$face,$align);};
     $wrap=function($im,string $value,int $x,int $y,int $width,int $size,string $color,?string $face,int $line=25,string $align='left',int $max=6)use($text){
         $lines=certificate_wrap_text($value,$width,$size,$face);foreach(array_slice($lines,0,$max) as $i=>$row){$tx=$align==='center'?$x+(int)($width/2):$x;$text($im,$row,$tx,$y+($i*$line),$size,$color,$face,$align);}
@@ -19,7 +19,7 @@ function mpi_spreader_bar_render_certificate_pdf(string $path,array $p):void
     $selected=function(string $key,string $choice)use($fields):bool{return in_array(strtolower($choice),mpi_spreader_bar_list($fields[$key]??''),true);};
     $field=function(string $key,string $fallback='')use($fields):string{$v=trim((string)($fields[$key]??''));return $v!==''?$v:$fallback;};
 
-    $put($im,dirname(__DIR__,3).'/public/logo.png',$x,$y,165,115);
+    $put($im,certificate_runtime_asset('logo.png'),$x,$y,165,115);
     $put($im,$asset.'/leea-logo.png',$x+$w-155,$y,145,115);
     imagearc($im,$x+190,$y+3,1040,92,0,360,certificate_color($im,'#222'));imagerectangle($im,$x+190,$y+3,$x+1230,$y+95,certificate_color($im,'#222'));
     $text($im,'JUVA-OIL SERVICES (NIG) LIMITED',$x+710,$y+65,36,$black,$bold,'center');

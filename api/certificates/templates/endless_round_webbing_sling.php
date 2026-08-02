@@ -9,7 +9,7 @@ function endless_round_webbing_sling_render_certificate_pdf(string $path, array 
     $bold = certificate_find_font(true) ?: $font;
     $ink = '#242424';
     $line = '#333333';
-    $asset = dirname(__DIR__, 3) . '/public/assets/certificates/endless-round-webbing-sling';
+    $asset = certificate_runtime_asset('assets/certificates/endless-round-webbing-sling');
     $field = static function (string $key, string $fallback = '') use ($p): string {
         $value = trim((string) ($p['fields'][$key] ?? ''));
         return $value !== '' ? $value : $fallback;
@@ -65,7 +65,7 @@ function endless_round_webbing_sling_render_certificate_pdf(string $path, array 
         if (strtolower(trim($value)) === 'no') { $tick($im, $x + $questionW + 195, $y, 65, $h); }
     };
 
-    $put($im, dirname(__DIR__, 3) . '/public/logo.png', 105, 45, 220, 125);
+    $put($im, certificate_runtime_asset('logo.png'), 105, 45, 220, 125);
     $put($im, $asset . '/leea-logo.png', 1370, 45, 185, 125);
     $roundedBox($im, 315, 65, 1305, 155, 18, '#FFFFFF', $line);
     $text($im, 'JUVA-OIL SERVICES (NIG) LIMITED', 810, 125, 38, $bold, 'center');

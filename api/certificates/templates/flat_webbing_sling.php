@@ -9,7 +9,7 @@ function flat_webbing_sling_render_certificate_pdf(string $path, array $p): void
     $bold = certificate_find_font(true) ?: $font;
     $ink = '#242424';
     $line = '#333333';
-    $asset = dirname(__DIR__, 3) . '/public/assets/certificates/flat-webbing-sling';
+    $asset = certificate_runtime_asset('assets/certificates/flat-webbing-sling');
     $field = static function (string $key, string $fallback = '') use ($p): string {
         $value = trim((string) ($p['fields'][$key] ?? ''));
         return $value !== '' ? $value : $fallback;
@@ -66,7 +66,7 @@ function flat_webbing_sling_render_certificate_pdf(string $path, array $p): void
     };
 
     $put($im, $asset . '/leea-logo.png', 105, 45, 185, 125);
-    $put($im, dirname(__DIR__, 3) . '/public/logo.png', 1370, 45, 220, 125);
+    $put($im, certificate_runtime_asset('logo.png'), 1370, 45, 220, 125);
     $roundedBox($im, 315, 65, 1305, 155, 18, '#FFFFFF', $line);
     $text($im, 'JUVA-OIL SERVICES (NIG) LIMITED', 810, 125, 38, $bold, 'center');
     $text($im, 'CERTIFICATE OF THOROUGH EXAMINATION', 827, 210, 30, $bold, 'center');

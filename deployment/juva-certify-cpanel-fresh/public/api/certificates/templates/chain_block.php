@@ -112,7 +112,7 @@ function chain_block_render_certificate_pdf(string $path, array $p): void
     $bold = certificate_find_font(true) ?: $font;
     $ink = '#242424';
     $line = '#333333';
-    $asset = dirname(__DIR__, 3) . '/public/assets/certificates/chain-block';
+    $asset = certificate_runtime_asset('assets/certificates/chain-block');
     $field = static function (string $key, string $fallback = '') use ($p): string {
         $value = trim((string) ($p['fields'][$key] ?? ''));
         return $value !== '' ? $value : $fallback;
@@ -156,7 +156,7 @@ function chain_block_render_certificate_pdf(string $path, array $p): void
         if (strtolower(trim($value)) === 'no') { $tick($im, $x + $questionW + 195, $y, 65, $h); }
     };
 
-    $put($im, dirname(__DIR__, 3) . '/public/logo.png', 105, 55, 230, 115);
+    $put($im, certificate_runtime_asset('logo.png'), 105, 55, 230, 115);
     $put($im, $asset . '/leea-logo.png', 1360, 60, 175, 105);
     imagefilledrectangle($im, 315, 65, 1305, 155, certificate_color($im, '#FFFFFF'));
     imagerectangle($im, 315, 65, 1305, 155, certificate_color($im, $line));

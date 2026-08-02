@@ -6,7 +6,7 @@ function eye_bolt_render_certificate_pdf(string $path, array $p): void
 {
     $im=imagecreatetruecolor(2339,1654); imagefilledrectangle($im,0,0,2339,1654,certificate_color($im,'#FFFFFF'));
     $font=certificate_find_font(false); $bold=certificate_find_font(true)?:$font; $ink='#202020'; $line='#222222';
-    $asset=dirname(__DIR__,3).'/public/assets/certificates/endless-round-webbing-sling';
+    $asset=certificate_runtime_asset('assets/certificates/endless-round-webbing-sling');
     $fit=static function($im,string $v,int $x,int $y,int $w,int $h,int $size,?string $f,string $align='left') use($ink):void{ccu_draw_text_fit($im,$v,$x,$y,$w,$h,$size,$ink,$f,false,$align);};
     $cell=static function($im,int $x,int $y,int $w,int $h,string $v,int $size,?string $f,string $align='left') use($line,$fit):void{imagerectangle($im,$x,$y,$x+$w,$y+$h,certificate_color($im,$line));$fit($im,$v,$x+2,$y+2,$w-4,$h-4,$size,$f,$align);};
     $put=static function($im,string $file,int $x,int $y,int $w,int $h):void{if(!is_file($file))return;$bytes=@file_get_contents($file);$src=$bytes!==false?@imagecreatefromstring($bytes):false;if(!$src)return;$scale=min($w/imagesx($src),$h/imagesy($src));$dw=(int)round(imagesx($src)*$scale);$dh=(int)round(imagesy($src)*$scale);imagecopyresampled($im,$src,$x+(int)(($w-$dw)/2),$y+(int)(($h-$dh)/2),0,0,$dw,$dh,imagesx($src),imagesy($src));imagedestroy($src);};
@@ -14,7 +14,7 @@ function eye_bolt_render_certificate_pdf(string $path, array $p): void
     $rounded=static function($im,int $x1,int $y1,int $x2,int $y2,int $r) use($line):void{$c=certificate_color($im,$line);imageline($im,$x1+$r,$y1,$x2-$r,$y1,$c);imageline($im,$x1+$r,$y2,$x2-$r,$y2,$c);imageline($im,$x1,$y1+$r,$x1,$y2-$r,$c);imageline($im,$x2,$y1+$r,$x2,$y2-$r,$c);imagearc($im,$x1+$r,$y1+$r,$r*2,$r*2,180,270,$c);imagearc($im,$x2-$r,$y1+$r,$r*2,$r*2,270,360,$c);imagearc($im,$x1+$r,$y2-$r,$r*2,$r*2,90,180,$c);imagearc($im,$x2-$r,$y2-$r,$r*2,$r*2,0,90,$c);};
     $text=static function($im,string $v,int $x,int $y,int $s,?string $f,string $align='left') use($ink):void{certificate_draw_text($im,$v,$x,$y,$s,$ink,$f,$align);};
 
-    $put($im,$asset.'/leea-logo.png',65,35,175,120); $put($im,dirname(__DIR__,3).'/public/logo.png',2070,35,205,120);
+    $put($im,$asset.'/leea-logo.png',65,35,175,120); $put($im,certificate_runtime_asset('logo.png'),2070,35,205,120);
     $rounded($im,320,60,2015,155,18); $text($im,'JUVA-OIL SERVICES (NIG) LIMITED',1168,128,42,$bold,'center');
     $text($im,'CERTIFICATE OF THOROUGH EXAMINATION',1168,215,35,$bold,'center');
     foreach(["This report complies with the Lifting Equipment Engineers Association's technical requirements",'The Lifting Operations and Lifting Equipment Regulations 1998 SI NO.2307','The Supply of Machinery (Safety) Regulation 1992 SI NO.3073','The Provision and Use of Work Equipment Regulations 1998 SI NO.2306','Nigeria Factories Act CAP F1 LFN, 2004'] as $i=>$r)$text($im,$r,1168,258+($i*24),17,$font,'center');
