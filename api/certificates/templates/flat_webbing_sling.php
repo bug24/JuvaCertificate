@@ -71,8 +71,8 @@ function flat_webbing_sling_render_certificate_pdf(string $path, array $p): void
     $text($im, 'JUVA-OIL SERVICES (NIG) LIMITED', 810, 125, 38, $bold, 'center');
     $text($im, 'CERTIFICATE OF THOROUGH EXAMINATION', 827, 210, 30, $bold, 'center');
     $status = strtoupper((string) ($p['status'] ?? 'VALID'));
-    $statusColor = $status === 'REVOKED' ? '#9B1C1C' : ($status === 'EXPIRED' ? '#8A5600' : '#08775E');
-    imagerectangle($im, 1370, 185, 1535, 235, certificate_color($im, $statusColor));
+    $statusColor = $status === 'REVOKED' ? '#9B1C1C' : ($status === 'EXPIRED' ? '#8A5600' : '#198754');
+    imagefilledrectangle($im, 1364, 180, 1541, 240, certificate_color($im, $statusColor));
     certificate_draw_text($im, $status, 1452, 219, 21, $statusColor, $bold, 'center');
     $reg = [
         "This report complies with the Lifting Equipment Engineers Association's technical requirements",
@@ -149,7 +149,7 @@ function flat_webbing_sling_render_certificate_pdf(string $path, array $p): void
 
     if (class_exists('QRCode')) {
         $qr = QRCode::getMinimumQRCode((string) $p['verification_url'], QR_ERROR_CORRECT_LEVEL_M);
-        $count = (int) $qr->getModuleCount(); $module = 5; $quiet = 4; $size = ($count + 8) * $module;
+        $count = (int) $qr->getModuleCount(); $module = 6; $quiet = 5; $size = ($count + 8) * $module;
         $boxPad = 18; $boxW = $size + ($boxPad * 2); $boxH = $size + 92;
         $qx = $x + $w - $boxW + $boxPad; $qy = $y - 12 + $boxPad;
         imagefilledrectangle($im, $qx - $boxPad, $qy - $boxPad, $qx - $boxPad + $boxW, $qy - $boxPad + $boxH, certificate_color($im, '#FFFFFF'));

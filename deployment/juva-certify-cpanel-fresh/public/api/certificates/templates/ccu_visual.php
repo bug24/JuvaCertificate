@@ -248,7 +248,7 @@ function ccu_render_certificate_pdf(string $path, array $payload): void
         }
         $qr = QRCode::getMinimumQRCode($data, QR_ERROR_CORRECT_LEVEL_M);
         $count = (int) $qr->getModuleCount();
-        $quiet = 4;
+        $quiet = 5;
         $module = max(2, (int) floor($size / ($count + ($quiet * 2))));
         $actual = ($count + ($quiet * 2)) * $module;
         imagefilledrectangle($canvas, $x, $y, $x + $actual, $y + $actual, certificate_color($canvas, '#FFFFFF'));
@@ -299,7 +299,7 @@ function ccu_render_certificate_pdf(string $path, array $payload): void
     $putPng($assetDir . '/leea-logo.png', $sx(596), $sy(47), $sx(61), $sy(46), 100);
 
     $effectiveStatus = strtoupper((string) ($payload['status'] ?? 'valid'));
-    $statusColor = $effectiveStatus === 'REVOKED' ? '#A61B1B' : ($effectiveStatus === 'EXPIRED' ? '#8A5A00' : '#08775E');
+    $statusColor = $effectiveStatus === 'REVOKED' ? '#A61B1B' : ($effectiveStatus === 'EXPIRED' ? '#8A5A00' : '#198754');
     $statusX = $sx(655);
     $statusY = $sy(103);
     $statusW = $sx(52);
@@ -436,7 +436,7 @@ function ccu_render_certificate_pdf(string $path, array $payload): void
     $qrBoxW = $sx(121);
     $qrBoxH = $sy(82);
     imagerectangle($canvas, $qrBoxX, $qrBoxY, $qrBoxX + $qrBoxW, $qrBoxY + $qrBoxH, certificate_color($canvas, '#777777'));
-    $drawQr((string) $payload['verification_url'], $qrBoxX + $sx(34), $qrBoxY + $sy(4), $sx(54));
+    $drawQr((string) $payload['verification_url'], $qrBoxX + $sx(34), $qrBoxY + $sy(4), $sx(68));
     $textAt('SCAN TO VERIFY', $qrBoxX + (int) floor($qrBoxW / 2), $qrBoxY + $sy(66), 12, $ink, true, 'center');
     $textAt('cert.juvaoil.com', $qrBoxX + (int) floor($qrBoxW / 2), $qrBoxY + $sy(77), 10, $muted, false, 'center');
 

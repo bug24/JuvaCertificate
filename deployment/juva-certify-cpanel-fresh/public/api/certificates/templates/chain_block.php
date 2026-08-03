@@ -163,8 +163,8 @@ function chain_block_render_certificate_pdf(string $path, array $p): void
     $text($im, 'JUVA-OIL SERVICES (NIG) LIMITED', 810, 125, 38, $bold, 'center');
     $text($im, 'CERTIFICATE OF THOROUGH EXAMINATION', 827, 210, 30, $bold, 'center');
     $status = strtoupper((string) ($p['status'] ?? 'VALID'));
-    $statusColor = $status === 'REVOKED' ? '#9B1C1C' : ($status === 'EXPIRED' ? '#8A5600' : '#08775E');
-    imagerectangle($im, 1370, 185, 1535, 235, certificate_color($im, $statusColor));
+    $statusColor = $status === 'REVOKED' ? '#9B1C1C' : ($status === 'EXPIRED' ? '#8A5600' : '#198754');
+    imagefilledrectangle($im, 1364, 180, 1541, 240, certificate_color($im, $statusColor));
     certificate_draw_text($im, $status, 1452, 219, 21, $statusColor, $bold, 'center');
     $reg = [
         "This report complies with the Lifting Equipment Engineers Association's technical requirements",
@@ -235,15 +235,15 @@ function chain_block_render_certificate_pdf(string $path, array $p): void
 
     if (class_exists('QRCode')) {
         $qr = QRCode::getMinimumQRCode((string) $p['verification_url'], QR_ERROR_CORRECT_LEVEL_M);
-        $count = (int) $qr->getModuleCount(); $module = 5; $quiet = 4; $size = ($count + 8) * $module;
+        $count = (int) $qr->getModuleCount(); $module = 6; $quiet = 5; $size = ($count + 8) * $module;
         $boxPad = 18; $boxW = $size + ($boxPad * 2); $boxH = $size + 92;
         $qx = $x + $w - $boxW + $boxPad; $qy = $y - 12 + $boxPad;
         imagefilledrectangle($im, $qx - $boxPad, $qy - $boxPad, $qx - $boxPad + $boxW, $qy - $boxPad + $boxH, certificate_color($im, '#FFFFFF'));
         imagerectangle($im, $qx - $boxPad, $qy - $boxPad, $qx - $boxPad + $boxW, $qy - $boxPad + $boxH, certificate_color($im, '#555555'));
         imagefilledrectangle($im, $qx, $qy, $qx + $size, $qy + $size, certificate_color($im, '#FFFFFF'));
         for ($r = 0; $r < $count; $r++) { for ($c = 0; $c < $count; $c++) { if ($qr->isDark($r, $c)) { imagefilledrectangle($im, $qx + (($c + $quiet) * $module), $qy + (($r + $quiet) * $module), $qx + (($c + $quiet + 1) * $module) - 1, $qy + (($r + $quiet + 1) * $module) - 1, certificate_color($im, '#000000')); } } }
-        $text($im, 'VERIFY THIS CERTIFICATE', $qx + (int) ($size / 2), $qy + $size + 25, 16, $bold, 'center');
-        $text($im, 'Scan to confirm live validity', $qx + (int) ($size / 2), $qy + $size + 50, 13, $font, 'center');
+        $text($im, 'VERIFY WITH INTEGRITY', $qx + (int) ($size / 2), $qy + $size + 25, 16, $bold, 'center');
+        $text($im, 'Scan to verify JUVA Oil live records', $qx + (int) ($size / 2), $qy + $size + 50, 13, $font, 'center');
         $text($im, 'cert.juvaoil.com', $qx + (int) ($size / 2), $qy + $size + 73, 12, $bold, 'center');
     }
     if ($y + 190 > 2295) { throw new RuntimeException('Chain Block certificate content exceeds one A4 page.'); }

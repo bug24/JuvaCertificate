@@ -63,7 +63,7 @@ function mpi_spreader_bar_render_certificate_pdf(string $path,array $p):void
     if(!empty($auth['company_stamp_path']))$put($im,(string)$auth['company_stamp_path'],$x+$w-270,$y+18,230,96);$y+=155;
     $put($im,$asset.'/bsi-logo.png',$x+20,$y,130,78);$put($im,$asset.'/asnt-logo.png',$x+180,$y,130,78);$put($im,$asset.'/acebi-logo.png',$x+340,$y,145,78);
     if(class_exists('QRCode')){
-        $qr=QRCode::getMinimumQRCode((string)$p['verification_url'],QR_ERROR_CORRECT_LEVEL_M);$count=$qr->getModuleCount();$module=4;$quiet=4;$size=($count+8)*$module;$qx=$x+$w-$size-15;$qy=$y-10;
+        $qr=QRCode::getMinimumQRCode((string)$p['verification_url'],QR_ERROR_CORRECT_LEVEL_M);$count=$qr->getModuleCount();$module=5;$quiet=4;$size=($count+8)*$module;$qx=$x+$w-$size-15;$qy=$y-10;
         imagefilledrectangle($im,$qx,$qy,$qx+$size,$qy+$size,certificate_color($im,'#FFF'));for($yy=0;$yy<$count;$yy++)for($xx=0;$xx<$count;$xx++)if($qr->isDark($yy,$xx))imagefilledrectangle($im,$qx+(($xx+$quiet)*$module),$qy+(($yy+$quiet)*$module),$qx+(($xx+$quiet+1)*$module)-1,$qy+(($yy+$quiet+1)*$module)-1,certificate_color($im,'#111'));
         $text($im,'SCAN TO VERIFY AUTHENTICITY',$qx+(int)($size/2),$qy+$size+22,11,$black,$bold,'center');$text($im,'cert.juvaoil.com',$qx+(int)($size/2),$qy+$size+39,10,$muted,$font,'center');
     }
