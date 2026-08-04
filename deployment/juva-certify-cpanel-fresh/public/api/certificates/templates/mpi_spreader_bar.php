@@ -24,7 +24,7 @@ function mpi_spreader_bar_render_certificate_pdf(string $path,array $p):void
     imagearc($im,$x+190,$y+3,1040,92,0,360,certificate_color($im,'#222'));imagerectangle($im,$x+190,$y+3,$x+1230,$y+95,certificate_color($im,'#222'));
     $text($im,'JUVA-OIL SERVICES (NIG) LIMITED',$x+710,$y+65,36,$black,$bold,'center');
     $status=strtoupper((string)($p['status']??'VALID'));$statusColor=$status==='VALID'?$green:$red;
-    imagerectangle($im,$x+$w-155,$y+125,$x+$w-10,$y+170,certificate_color($im,$statusColor));$text($im,$status,$x+$w-82,$y+157,21,$statusColor,$bold,'center');
+    imagefilledrectangle($im,$x+$w-155,$y+125,$x+$w-10,$y+170,certificate_color($im,$statusColor));$text($im,$status,$x+$w-82,$y+157,21,$statusColor,$bold,'center');
     $y+=145;$text($im,'VISUAL/MAGNETIC PARTICLE INSPECTION CERTIFICATE',$x+(int)($w/2),$y,29,$black,$bold,'center');$y+=36;
     foreach(["This report complies with the Lifting Equipment Engineers Association's technical requirements",'STATUTORY INSTRUMENTS 1990 NO.2307','The Lifting Operations and Lifting Equipment Regulations 1998','The Supply of Machinery (Safety) Regulation 1992','The Provision and Use of Work Equipment Regulations 1998'] as $line){$text($im,$line,$x+(int)($w/2),$y,14,$muted,$font,'center');$y+=20;}
     $y+=22;$third=(int)($w/3);

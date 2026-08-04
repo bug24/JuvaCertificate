@@ -304,8 +304,8 @@ function ccu_render_certificate_pdf(string $path, array $payload): void
     $statusY = $sy(103);
     $statusW = $sx(52);
     $statusH = $sy(20);
-    imagerectangle($canvas, $statusX, $statusY, $statusX + $statusW, $statusY + $statusH, certificate_color($canvas, $statusColor));
-    ccu_draw_text_fit($canvas, $effectiveStatus, $statusX, $statusY, $statusW, $statusH, 15, $statusColor, $bold, true, 'center');
+    imagefilledrectangle($canvas, $statusX, $statusY, $statusX + $statusW, $statusY + $statusH, certificate_color($canvas, $statusColor));
+    ccu_draw_text_fit($canvas, $effectiveStatus, $statusX, $statusY, $statusW, $statusH, 15, '#FFFFFF', $bold, true, 'center');
 
     $textAt('CERTIFICATE OF VISUAL EXAMINATION', $sx(396), $sy(108), 28, $ink, true, 'center');
     $regLines = [

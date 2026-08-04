@@ -220,6 +220,7 @@ function chain_block_render_certificate_pdf(string $path, array $p): void
     $signW = (int) ($w / 3);
     $cell($im, $x, $y, $signW, 125, "INSPECTOR\n" . strtoupper((string) $p['inspector_name']) . "\n" . strtoupper((string) $p['inspector_qualification']) . "\nSIGNATURE: " . strtoupper($field('inspector_signature_name')), 16, $font);
     $cell($im, $x + $signW, $y, $signW, 125, "AUTHENTICATOR\n" . strtoupper($field('authenticator_name')) . "\n" . strtoupper($field('authenticator_qualification')) . "\nSIGNATURE: " . strtoupper($field('authenticator_signature_name')), 16, $font);
+    imagefilledrectangle($im, $x + ($signW * 2), $y, $x + $w, $y + 125, certificate_color($im, '#FDECEC'));
     $cell($im, $x + ($signW * 2), $y, $w - ($signW * 2), 125, "NEXT THOROUGH EXAMINATION DATE\n\n" . chain_block_date((string) $p['next_examination_date']), 18, $bold, 'center');
     $authentication = is_array($p['authentication'] ?? null) ? $p['authentication'] : [];
     if (!empty($authentication['inspector_signature_path'])) { $put($im, (string) $authentication['inspector_signature_path'], $x + 250, $y + 60, 185, 55); }
