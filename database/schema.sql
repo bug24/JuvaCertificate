@@ -225,6 +225,7 @@ CREATE TABLE inspections (
   category_id BIGINT UNSIGNED NOT NULL,
   form_template_id BIGINT UNSIGNED NOT NULL,
   inspector_id BIGINT UNSIGNED NOT NULL,
+  authenticator_id BIGINT UNSIGNED NULL,
   inspection_date DATE NOT NULL,
   next_due_date DATE NULL,
   location VARCHAR(255) NULL,
@@ -254,6 +255,7 @@ CREATE TABLE inspections (
   CONSTRAINT fk_inspection_category FOREIGN KEY (category_id) REFERENCES certification_categories(id),
   CONSTRAINT fk_inspection_template FOREIGN KEY (form_template_id) REFERENCES form_templates(id),
   CONSTRAINT fk_inspection_inspector FOREIGN KEY (inspector_id) REFERENCES users(id),
+  CONSTRAINT fk_inspection_authenticator FOREIGN KEY (authenticator_id) REFERENCES users(id) ON DELETE SET NULL,
   CONSTRAINT fk_inspection_clone_source FOREIGN KEY (cloned_from_inspection_id) REFERENCES inspections(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 CREATE TABLE inspection_values (

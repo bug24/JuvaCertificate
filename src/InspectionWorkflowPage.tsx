@@ -115,6 +115,8 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
   const [clients, setClients] = useState<RecordRow[]>([]);
   const [equipment, setEquipment] = useState<RecordRow[]>([]);
   const [categories, setCategories] = useState<RecordRow[]>([]);
+  const [inspectors, setInspectors] = useState<RecordRow[]>([]);
+  const [authenticators, setAuthenticators] = useState<RecordRow[]>([]);
   const [fields, setFields] = useState<RecordRow[]>([]);
   const [sections, setSections] = useState<RecordRow[]>([]);
   const [values, setValues] = useState<Record<string, string>>({});
@@ -169,6 +171,9 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
     if (c.data) setClients(c.data.clients);
     if (e.data) setEquipment(e.data.equipment);
     if (cat.data) setCategories(cat.data.categories);
+    const [ins, auth] = await Promise.all([request<{ users: RecordRow[] }>("/users/eligible.php?kind=inspector"), request<{ users: RecordRow[] }>("/users/eligible.php?kind=authenticator")]);
+    if (ins.data) setInspectors(ins.data.users);
+    if (auth.data) setAuthenticators(auth.data.users);
     if (i.error) setError(i.error);
   }
 
@@ -241,6 +246,36 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
     });
   }
 
+  function selectProfile(kind: "inspector" | "authenticator", id: string) {
+    const list = kind === "inspector" ? inspectors : authenticators;
+    const person = list.find((item) => String(item.id) === id);
+    const nameKey = kind === "inspector" ? "inspector_name" : "authenticator_name";
+    const qualificationKey = kind === "inspector" ? "inspector_qualification" : "authenticator_qualification";
+    setForm((current) => ({ ...current, [`${kind}_id`]: id, [nameKey]: person?.name || "", [qualificationKey]: person?.qualification || "" }));
+    setValues((current) => {
+      const next = { ...current };
+      for (const field of fields) {
+        const key = String(field.field_key || "");
+        if (kind === "inspector" && (key === "inspector_name" || key === "inspector_name_snapshot")) next[String(field.id)] = person?.name || "";
+        if (kind === "inspector" && (key === "inspector_qualification" || key === "inspector_qualification_snapshot")) next[String(field.id)] = person?.qualification || "";
+        if (kind === "authenticator" && (key === "authenticator_name" || key === "authenticator_name_snapshot")) next[String(field.id)] = person?.name || "";
+        if (kind === "authenticator" && (key === "authenticator_qualification" || key === "authenticator_qualifications" || key === "authenticator_qualification_snapshot")) next[String(field.id)] = person?.qualification || "";
+      }
+      return next;
+    });
+  }
+
+  function renderProfileField(field: RecordRow): ReactNode | null {
+    const key = String(field.field_key || "");
+    const inspector = key === "inspector_name" || key === "inspector_name_snapshot" || key === "inspector_qualification" || key === "inspector_qualification_snapshot";
+    const authenticator = key === "authenticator_name" || key === "authenticator_name_snapshot" || key === "authenticator_qualification" || key === "authenticator_qualifications" || key === "authenticator_qualification_snapshot";
+    if (!inspector && !authenticator) return null;
+    const kind = inspector ? "inspector" : "authenticator";
+    const list = inspector ? inspectors : authenticators;
+    const selectedId = inspector ? String(form.inspector_id || "") : String(form.authenticator_id || "");
+    if (key.includes("qualification")) return <input value={String(form[inspector ? "inspector_qualification" : "authenticator_qualification"] || "")} readOnly placeholder="Select a staff profile" />;
+    return <select value={selectedId} onChange={(event) => selectProfile(kind, event.target.value)}><option value="">Select {inspector ? "inspector" : "authenticator"}</option>{list.map((item) => <option key={item.id} value={item.id}>{item.name} - {item.qualification || "Qualification not set"}</option>)}</select>;
+  }
   function setDynamicValue(fieldId: number, value: string) {
     setValues((current) => ({ ...current, [String(fieldId)]: value }));
   }
@@ -372,6 +407,8 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
       client_id: String(inspection.client_id),
       equipment_id: String(inspection.equipment_id),
       category_id: String(inspection.category_id),
+      inspector_id: String(inspection.inspector_id || ""),
+      authenticator_id: String(inspection.authenticator_id || ""),
       reference: String(inspection.reference || ""),
       inspection_date: String(inspection.inspection_date || new Date().toISOString().slice(0, 10)),
       next_due_date: String(inspection.next_due_date || ""),
@@ -415,6 +452,8 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
       location: form.location || "",
       remarks: form.remarks || "",
       result: form.result || "pending",
+      inspector_id: form.inspector_id ? Number(form.inspector_id) : undefined,
+      authenticator_id: form.authenticator_id ? Number(form.authenticator_id) : undefined,
       draft_only: !submitNow,
       values,
       items,
@@ -710,7 +749,7 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
 
           {step === 2 && <div className="wizard-grid wizard-grid-sections">
             {fields.length === 0 && sections.length === 0 && <div className="empty-state compact-empty"><AlertCircle size={26} /><strong>No dynamic fields for this category yet</strong><span>Publish category fields and repeatable checklists to collect category-specific inspection data here.</span></div>}
-            {fields.map((field) => <label id={`field-${field.field_key}`} key={field.id} className={String(field.field_type) === "textarea" ? "wide-field" : ""}>{field.label}{Number(field.is_required) === 1 ? " *" : ""}{renderField(field)}{field.help_text && <span className="form-note">{field.help_text}</span>}</label>)}
+            {fields.map((field) => <label id={`field-${field.field_key}`} key={field.id} className={String(field.field_type) === "textarea" ? "wide-field" : ""}>{field.label}{Number(field.is_required) === 1 ? " *" : ""}{renderProfileField(field) || renderField(field)}{field.help_text && <span className="form-note">{field.help_text}</span>}</label>)}
             {sections.map((section) => {
               const sectionKey = String(section.section_key);
               const sectionRows = items[sectionKey] || [];

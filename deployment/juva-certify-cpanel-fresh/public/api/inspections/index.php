@@ -231,6 +231,25 @@ $existingInspection = null;
 $reference = null;
 $sequenceNumber = null;
 $inspectorId = (int) $user['id'];
+$authenticatorId = null;
+if (!empty($input['authenticator_id'])) {
+    $requestedAuthenticatorId = (int) $input['authenticator_id'];
+    $requestedAuthenticator = fetch_user($requestedAuthenticatorId);
+    if (!$requestedAuthenticator || $requestedAuthenticator['status'] !== 'active' || !in_array($requestedAuthenticator['role_slug'], ['super-admin', 'operations-admin', 'reviewer'], true)) {
+        $errors['authenticator_id'] = 'Select an active eligible authenticator.';
+    } else {
+        $authenticatorId = $requestedAuthenticatorId;
+    }
+}
+if (!empty($input['inspector_id'])) {
+    $requestedInspectorId = (int) $input['inspector_id'];
+    $requestedInspector = fetch_user($requestedInspectorId);
+    if (!$requestedInspector || $requestedInspector['status'] !== 'active' || !in_array($requestedInspector['role_slug'], ['super-admin', 'operations-admin', 'inspector'], true)) {
+        $errors['inspector_id'] = 'Select an active eligible inspector.';
+    } else {
+        $inspectorId = $requestedInspectorId;
+    }
+}
 if ($isUpdate) {
     $existingInspection = fetch_inspection_for_user($inspectionId, $user);
     if (!$existingInspection) {
@@ -247,7 +266,8 @@ if ($isUpdate) {
     }
     $reference = (string) $existingInspection['reference'];
     $sequenceNumber = $existingInspection['sequence_number'] !== null ? (int) $existingInspection['sequence_number'] : null;
-    $inspectorId = (int) $existingInspection['inspector_id'];
+    $inspectorId = !empty($input['inspector_id']) ? $inspectorId : (int) $existingInspection['inspector_id'];
+    $authenticatorId = !empty($input['authenticator_id']) ? $authenticatorId : (!empty($existingInspection['authenticator_id']) ? (int) $existingInspection['authenticator_id'] : null);
 }
 
 $fieldStmt = db()->prepare('SELECT * FROM form_fields WHERE template_id = ? ORDER BY sort_order, id');
@@ -272,10 +292,12 @@ $pdo = db();
 $pdo->beginTransaction();
 try {
     if ($isUpdate) {
-        $stmt = $pdo->prepare('UPDATE inspections SET equipment_id = ?, form_template_id = ?, inspection_date = ?, next_due_date = ?, location = ?, result = ?, remarks = ?, updated_at = ? WHERE id = ?');
+        $stmt = $pdo->prepare('UPDATE inspections SET equipment_id = ?, form_template_id = ?, inspector_id = ?, authenticator_id = ?, inspection_date = ?, next_due_date = ?, location = ?, result = ?, remarks = ?, updated_at = ? WHERE id = ?');
         $stmt->execute([
             $equipmentId,
             (int) $template['id'],
+            $inspectorId,
+            $authenticatorId,
             (string) $input['inspection_date'],
             isset($input['next_due_date']) && $input['next_due_date'] !== '' ? (string) $input['next_due_date'] : null,
             $location !== '' ? $location : null,
@@ -289,7 +311,7 @@ try {
         $allocation = allocate_scoped_reference($pdo, $clientId, $categoryId, (string) $client['short_code'], (string) $template['short_code']);
         $reference = $allocation['reference'];
         $sequenceNumber = (int) $allocation['sequence_number'];
-        $stmt = $pdo->prepare('INSERT INTO inspections (reference, sequence_number, client_id, equipment_id, category_id, form_template_id, inspector_id, inspection_date, next_due_date, location, result, status, remarks, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $pdo->prepare('INSERT INTO inspections (reference, sequence_number, client_id, equipment_id, category_id, form_template_id, inspector_id, authenticator_id, inspection_date, next_due_date, location, result, status, remarks, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
             $reference,
             $sequenceNumber,
@@ -298,6 +320,7 @@ try {
             $categoryId,
             (int) $template['id'],
             $inspectorId,
+            $authenticatorId,
             (string) $input['inspection_date'],
             isset($input['next_due_date']) && $input['next_due_date'] !== '' ? (string) $input['next_due_date'] : null,
             $location !== '' ? $location : null,
