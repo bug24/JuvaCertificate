@@ -78,6 +78,10 @@ try {
         if (!$ready['ready']) api_error('Certificate preview could not be generated. Complete the listed fields.', 422, $ready);
         $payload = shackles_payload($inspection, $rows, $items, $number, 0, $verify, $issued, $expiry);
         $payload['authentication'] = $auth;
+        $payload['inspector_name'] = (string) ($auth['inspector_name_snapshot'] ?? $payload['inspector_name'] ?? '');
+        $payload['inspector_qualification'] = (string) ($auth['inspector_qualifications_snapshot'] ?? $payload['inspector_qualification'] ?? '');
+        $payload['authenticator_name'] = (string) ($auth['authenticator_name_snapshot'] ?? $payload['authenticator_name'] ?? '');
+        $payload['authenticator_qualification'] = (string) ($auth['authenticator_qualifications_snapshot'] ?? $payload['authenticator_qualification'] ?? '');
         $payload['status'] = 'PREVIEW';
         shackles_render_certificate_pdf($path, $payload);
     } elseif ($family === 'eye_bolt') {

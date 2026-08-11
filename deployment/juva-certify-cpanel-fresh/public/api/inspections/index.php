@@ -311,7 +311,7 @@ try {
         $allocation = allocate_scoped_reference($pdo, $clientId, $categoryId, (string) $client['short_code'], (string) $template['short_code']);
         $reference = $allocation['reference'];
         $sequenceNumber = (int) $allocation['sequence_number'];
-        $stmt = $pdo->prepare('INSERT INTO inspections (reference, sequence_number, client_id, equipment_id, category_id, form_template_id, inspector_id, authenticator_id, inspection_date, next_due_date, location, result, status, remarks, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt = $pdo->prepare('INSERT INTO inspections (reference, sequence_number, client_id, equipment_id, category_id, form_template_id, inspector_id, authenticator_id, inspection_date, next_due_date, location, result, status, remarks, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
             $reference,
             $sequenceNumber,
@@ -371,7 +371,9 @@ try {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
-    api_error($isUpdate ? 'Unable to update inspection.' : 'Unable to create inspection.', 422);
+    $reference = strtoupper(bin2hex(random_bytes(6)));
+    error_log("Inspection persistence failure {$reference}: {$e->getMessage()} in {$e->getFile()}:{$e->getLine()}");
+    api_error($isUpdate ? "Unable to update inspection. Reference log {$reference}." : "Unable to create inspection. Reference log {$reference}.", 422);
 }
 
 audit_log((int) $user['id'], $isUpdate ? 'inspections.updated' : 'inspections.created', 'inspection', $id, ['reference' => $reference, 'sequence_number' => $sequenceNumber, 'client_id' => $clientId, 'category_id' => $categoryId, 'updated_existing' => $isUpdate]);
