@@ -312,15 +312,15 @@ function juva_category_blueprints(): array
         ],
         [
             'code' => 'SHK',
-            'short_code' => 'SHKACC',
-            'name' => 'Shackles and Accessories',
+            'short_code' => 'SHK',
+            'name' => 'Shackles',
             'description' => 'Thorough examination of shackles, pins and related lifting accessories.',
             'validity_months' => 6,
-            'certificate_template' => 'Report of Thorough Examination of Lifting Equipment',
-            'template_family' => 'rigging_accessory',
-            'layout_key' => 'rigging-accessory-v1',
+            'certificate_template' => 'Certificate of Thorough Examination',
+            'template_family' => 'shackles',
+            'layout_key' => 'shackles-landscape-v1',
             'source_sample' => 'SHACKLES AND ACCESSORIES.pdf',
-            'schema_version' => 1,
+            'schema_version' => 2,
             'theme_color' => '#18794E',
             'identifier_label' => 'Report Number',
             'fields' => array_merge($coreFields, [
@@ -331,7 +331,7 @@ function juva_category_blueprints(): array
             ]),
             'sections' => [
                 [
-                    'section_key' => 'accessory_items',
+                    'section_key' => 'shackles_items',
                     'label' => 'Accessory Inspection Items',
                     'help_text' => 'Use when one certificate covers multiple shackles or accessories.',
                     'min_rows' => 1,
@@ -634,6 +634,3 @@ function seed_category_blueprints(PDO $pdo): array
 
     return ['created' => $created, 'updated' => $updated, 'total' => count($blueprints)];
 }
-
-
-

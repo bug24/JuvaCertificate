@@ -20,7 +20,7 @@ $stmt->execute([$id]);
 $inspection = $stmt->fetch();
 if (!$inspection) api_error('Inspection not found.', 404);
 $family = (string) $inspection['template_family'];
-if (!in_array($family, ['ccu_visual', 'chain_block', 'endless_round_webbing_sling', 'lever_hoist', 'flat_webbing_sling', 'eye_bolt', 'hook', 'mpi_spreader_bar', 'general_lifting_accessory', 'general_thorough_examination'], true)) api_error('Dedicated preview is not available for this category.', 422);
+if (!in_array($family, ['ccu_visual', 'chain_block', 'endless_round_webbing_sling', 'lever_hoist', 'flat_webbing_sling', 'eye_bolt', 'shackles', 'hook', 'mpi_spreader_bar', 'general_lifting_accessory', 'general_thorough_examination'], true)) api_error('Dedicated preview is not available for this category.', 422);
 
 $number = normalize_certificate_number($input['certificate_number'] ?? $inspection['reference']);
 $issued = (!empty($input['issued_at']) && valid_iso_date((string) $input['issued_at'])) ? (string) $input['issued_at'] : gmdate('Y-m-d');
@@ -73,6 +73,13 @@ try {
         $payload['authentication'] = $auth;
         $payload['status'] = 'PREVIEW';
         flat_webbing_sling_render_certificate_pdf($path, $payload);
+    } elseif ($family === 'shackles') {
+        $ready = shackles_readiness($inspection, $rows, $items, $number, $issued, $expiry);
+        if (!$ready['ready']) api_error('Certificate preview could not be generated. Complete the listed fields.', 422, $ready);
+        $payload = shackles_payload($inspection, $rows, $items, $number, 0, $verify, $issued, $expiry);
+        $payload['authentication'] = $auth;
+        $payload['status'] = 'PREVIEW';
+        shackles_render_certificate_pdf($path, $payload);
     } elseif ($family === 'eye_bolt') {
         $ready = eye_bolt_readiness($inspection, $rows, $items, $number, $issued, $expiry);
         if (!$ready['ready']) api_error('Certificate preview could not be generated. Complete the listed fields.', 422, $ready);
@@ -126,4 +133,3 @@ if (!is_file($path) || filesize($path) < 100) api_error('Certificate preview gen
 $_SESSION['certificate_previews'][$token] = ['path' => $path, 'inspection_id' => $id, 'expires_at' => time() + 900, 'download_name' => preg_replace('/[^A-Z0-9._-]/i', '_', $number) . '-preview.pdf'];
 audit_log((int) $user['id'], 'certificates.preview_generated', 'inspection', $id, ['template_family' => $family]);
 respond(['success' => true, 'inspection_id' => $id, 'preview_url' => api_url('certificates/preview-download.php?token=' . $token), 'expires_in' => 900]);
-

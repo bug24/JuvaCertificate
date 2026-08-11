@@ -55,7 +55,7 @@ try {
         api_error('Inspection not found.', 404);
     }
 
-    $supportedFamilies = ['ccu_visual', 'chain_block', 'endless_round_webbing_sling', 'lever_hoist', 'flat_webbing_sling', 'eye_bolt', 'hook', 'mpi_spreader_bar', 'general_lifting_accessory', 'general_thorough_examination'];
+    $supportedFamilies = ['ccu_visual', 'chain_block', 'endless_round_webbing_sling', 'lever_hoist', 'flat_webbing_sling', 'eye_bolt', 'shackles', 'hook', 'mpi_spreader_bar', 'general_lifting_accessory', 'general_thorough_examination'];
     $family = (string) ($inspection['template_family'] ?? '');
     if (!in_array($family, $supportedFamilies, true)) {
         respond(['success' => true, 'ready' => true, 'missing_fields' => [], 'missing_sections' => [], 'validation_errors' => [], 'blocking_items' => [], 'warnings' => ['Detailed readiness checks are not configured for this certificate template.'], 'can_save_draft' => true, 'can_preview' => true, 'can_submit' => true, 'can_approve' => true, 'can_issue' => true]);
@@ -90,8 +90,9 @@ try {
     $requiresEvidence = (int) ($inspection['requires_evidence'] ?? 0) === 1;
     $minimumEvidence = (int) ($inspection['minimum_evidence_files'] ?? 0);
 
-    if (in_array($family, ['eye_bolt', 'hook', 'general_lifting_accessory'], true)) {
+    if (in_array($family, ['eye_bolt', 'shackles', 'hook', 'general_lifting_accessory'], true)) {
         $functionMap = [
+            'shackles' => 'shackles_readiness',
             'hook' => 'hook_readiness',
             'eye_bolt' => 'eye_bolt_readiness',
             'general_lifting_accessory' => 'general_lifting_accessory_readiness',
