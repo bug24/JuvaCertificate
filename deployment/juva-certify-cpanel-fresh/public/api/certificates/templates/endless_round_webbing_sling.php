@@ -65,7 +65,7 @@ function endless_round_webbing_sling_render_certificate_pdf(string $path, array 
         if (strtolower(trim($value)) === 'no') { $tick($im, $x + $questionW + 195, $y, 65, $h); }
     };
 
-    $put($im, certificate_runtime_asset('logo.png'), 105, 45, 220, 125);
+    $put($im, certificate_runtime_asset('logo.png'), 85, 35, 300, 150);
     $put($im, $asset . '/leea-logo.png', 1370, 45, 185, 125);
     $roundedBox($im, 315, 65, 1305, 155, 18, '#FFFFFF', $line);
     $text($im, 'JUVA-OIL SERVICES (NIG) LIMITED', 810, 125, 38, $bold, 'center');

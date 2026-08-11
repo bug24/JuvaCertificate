@@ -19,7 +19,7 @@ function mpi_spreader_bar_render_certificate_pdf(string $path,array $p):void
     $selected=function(string $key,string $choice)use($fields):bool{return in_array(strtolower($choice),mpi_spreader_bar_list($fields[$key]??''),true);};
     $field=function(string $key,string $fallback='')use($fields):string{$v=trim((string)($fields[$key]??''));return $v!==''?$v:$fallback;};
 
-    $put($im,certificate_runtime_asset('logo.png'),$x,$y,165,115);
+    $put($im,certificate_runtime_asset('logo.png'),$x-25,$y-15,220,145);
     $put($im,$asset.'/leea-logo.png',$x+$w-155,$y,145,115);
     imagearc($im,$x+190,$y+3,1040,92,0,360,certificate_color($im,'#222'));imagerectangle($im,$x+190,$y+3,$x+1230,$y+95,certificate_color($im,'#222'));
     $text($im,'JUVA-OIL SERVICES (NIG) LIMITED',$x+710,$y+65,36,$black,$bold,'center');

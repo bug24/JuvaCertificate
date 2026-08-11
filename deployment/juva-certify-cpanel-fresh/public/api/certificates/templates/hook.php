@@ -14,7 +14,7 @@ function hook_render_certificate_pdf(string $path, array $p): void
     $rounded=static function($im,int $x1,int $y1,int $x2,int $y2,int $r) use($line):void{$c=certificate_color($im,$line);imageline($im,$x1+$r,$y1,$x2-$r,$y1,$c);imageline($im,$x1+$r,$y2,$x2-$r,$y2,$c);imageline($im,$x1,$y1+$r,$x1,$y2-$r,$c);imageline($im,$x2,$y1+$r,$x2,$y2-$r,$c);imagearc($im,$x1+$r,$y1+$r,$r*2,$r*2,180,270,$c);imagearc($im,$x2-$r,$y1+$r,$r*2,$r*2,270,360,$c);imagearc($im,$x1+$r,$y2-$r,$r*2,$r*2,90,180,$c);imagearc($im,$x2-$r,$y2-$r,$r*2,$r*2,0,90,$c);};
     $text=static function($im,string $v,int $x,int $y,int $s,?string $f,string $align='left') use($ink):void{certificate_draw_text($im,$v,$x,$y,$s,$ink,$f,$align);};
 
-    $put($im,$asset.'/leea-logo.png',65,35,175,120); $put($im,certificate_runtime_asset('logo.png'),2045,25,235,140);
+    $put($im,$asset.'/leea-logo.png',65,35,175,120); $put($im,certificate_runtime_asset('logo.png'),1950,20,300,165);
     $rounded($im,320,60,2015,155,18); $text($im,'JUVA-OIL SERVICES (NIG) LIMITED',1168,128,42,$bold,'center');
     $text($im,'CERTIFICATE OF THOROUGH EXAMINATION',1168,215,35,$bold,'center');
     foreach(["This report complies with the Lifting Equipment Engineers Association's technical requirements",'The Lifting Operations and Lifting Equipment Regulations 1998 SI NO.2307','The Supply of Machinery (Safety) Regulation 1992 SI NO.3073','The Provision and Use of Work Equipment Regulations 1998 SI NO.2306','Nigeria Factories Act CAP F1 LFN, 2004'] as $i=>$r)$text($im,$r,1168,258+($i*24),17,$font,'center');

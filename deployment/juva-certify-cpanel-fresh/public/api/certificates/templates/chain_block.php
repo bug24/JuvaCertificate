@@ -156,7 +156,7 @@ function chain_block_render_certificate_pdf(string $path, array $p): void
         if (strtolower(trim($value)) === 'no') { $tick($im, $x + $questionW + 195, $y, 65, $h); }
     };
 
-    $put($im, certificate_runtime_asset('logo.png'), 105, 55, 230, 115);
+    $put($im, certificate_runtime_asset('logo.png'), 85, 45, 300, 140);
     $put($im, $asset . '/leea-logo.png', 1360, 60, 175, 105);
     imagefilledrectangle($im, 315, 65, 1305, 155, certificate_color($im, '#FFFFFF'));
     imagerectangle($im, 315, 65, 1305, 155, certificate_color($im, $line));

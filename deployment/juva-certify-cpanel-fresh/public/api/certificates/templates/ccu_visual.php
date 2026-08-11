@@ -281,13 +281,13 @@ function ccu_render_certificate_pdf(string $path, array $payload): void
     if (is_file($logoPath)) {
         $logoInfo = @getimagesize($logoPath);
         if ($logoInfo) {
-            $boxW = $sx(46);
-            $boxH = $sy(52);
+            $boxW = $sx(70);
+            $boxH = $sy(70);
             $scale = min($boxW / max(1, $logoInfo[0]), $boxH / max(1, $logoInfo[1]));
             $logoW = max(1, (int) round($logoInfo[0] * $scale));
             $logoH = max(1, (int) round($logoInfo[1] * $scale));
-            $logoX = $sx(116) + (int) floor(($sx(53) - $logoW) / 2);
-            $logoY = $sy(36) + (int) floor(($sy(62) - $logoH) / 2);
+            $logoX = $sx(116) + (int) floor(($sx(70) - $logoW) / 2);
+            $logoY = $sy(36) + (int) floor(($sy(70) - $logoH) / 2);
             $putPng($logoPath, $logoX, $logoY, $logoW, $logoH, 100);
         }
     }
