@@ -93,8 +93,10 @@ function certificate_render_existing_download(array $certificate): ?string
     $payload = certificate_apply_revision_identity($payload, $authentication);
     $payload['status'] = certificate_effective_status($certificate);
 
-    $path = tempnam(sys_get_temp_dir(), 'juva-cert-download-');
-    if ($path === false) throw new RuntimeException('Unable to create certificate download workspace.');
+    $temporaryBase = tempnam(sys_get_temp_dir(), 'juva-cert-download-');
+    if ($temporaryBase === false) throw new RuntimeException('Unable to create certificate download workspace.');
+    $path = $temporaryBase . '.pdf';
+    @unlink($temporaryBase);
     try {
         if ($family === 'ccu_visual') ccu_render_certificate_pdf($path,$payload);
         elseif ($family === 'chain_block') chain_block_render_certificate_pdf($path,$payload);
@@ -111,5 +113,6 @@ function certificate_render_existing_download(array $certificate): ?string
         @unlink($path);
         throw $error;
     }
+    certificate_archive_hash($path);
     return $path;
 }

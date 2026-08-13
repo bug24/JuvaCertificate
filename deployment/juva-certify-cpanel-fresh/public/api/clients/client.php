@@ -22,8 +22,8 @@ function validate_client_payload(array $input, ?int $existingId = null): array
 
     if ($shortCode === '') {
         $errors['short_code'] = 'Client short code is required.';
-    } elseif (!preg_match('/^[A-Z0-9]{2,12}$/', $shortCode)) {
-        $errors['short_code'] = 'Use 2-12 uppercase letters or numbers.';
+    } elseif (!valid_company_short_code($shortCode)) {
+        $errors['short_code'] = 'Use 2-12 uppercase letters or numbers, including at least one letter.';
     }
 
     if ($name === '') {

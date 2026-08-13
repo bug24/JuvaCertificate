@@ -144,7 +144,9 @@ if ($isPrivilegedSubmitter) {
         } catch (Throwable $repairError) {
             if ($repair->inTransaction()) { $repair->rollBack(); }
         }
-        api_error('Certificate was not issued. ' . $e->getMessage() . ' The inspection was preserved for correction.', $e->httpStatus(), $e->validation());
+        $httpStatus = $e instanceof CertificateIssueException ? $e->httpStatus() : 500;
+        $validation = $e instanceof CertificateIssueException ? $e->validation() : [];
+        api_error('Certificate was not issued. ' . $e->getMessage() . ' The inspection was preserved for correction.', $httpStatus, $validation);
     }
 }
 

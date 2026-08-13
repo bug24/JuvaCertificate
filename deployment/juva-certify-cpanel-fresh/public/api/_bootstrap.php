@@ -694,6 +694,11 @@ function format_scoped_reference(string $clientShortCode, string $categoryShortC
     return sprintf('JUVA/%s/%s/%03d', $clientShortCode, $categoryShortCode, $sequenceNumber);
 }
 
+function valid_company_short_code(string $shortCode): bool
+{
+    return preg_match('/^(?=.*[A-Z])[A-Z0-9]{2,12}$/', strtoupper(trim($shortCode))) === 1;
+}
+
 function next_scoped_sequence_number(PDO $pdo, int $clientId, int $categoryId): int
 {
     $stmt = $pdo->prepare('SELECT last_number FROM certificate_sequences WHERE client_id = ? AND category_id = ? LIMIT 1');
@@ -769,9 +774,10 @@ function ensure_private_storage_dir(string $relativeDir): string
 {
     $relativeDir = trim(str_replace(['..\\', '../'], '', $relativeDir), "\\/");
     $path = private_storage_root() . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativeDir);
-    if (!is_dir($path)) {
-        mkdir($path, 0775, true);
+    if (!is_dir($path) && !@mkdir($path, 0775, true) && !is_dir($path)) {
+        throw new RuntimeException('Unable to create private storage directory.');
     }
+    if (!is_writable($path)) throw new RuntimeException('Private storage directory is not writable.');
     return $path;
 }
 

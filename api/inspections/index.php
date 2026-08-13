@@ -203,8 +203,8 @@ $clientStmt->execute([$clientId]);
 $client = $clientStmt->fetch();
 if (!$client) {
     $errors['client_id'] = 'Selected client was not found.';
-} elseif (empty($client['short_code'])) {
-    $errors['client_id'] = 'Selected client is missing a short code. Update the client record before creating certificates.';
+} elseif (!valid_company_short_code((string) ($client['short_code'] ?? ''))) {
+    $errors['client_id'] = 'Selected client is missing a valid company short name. Update the client record before creating certificates.';
 }
 
 $equipmentStmt = db()->prepare('SELECT id, client_id FROM equipment WHERE id = ? LIMIT 1');

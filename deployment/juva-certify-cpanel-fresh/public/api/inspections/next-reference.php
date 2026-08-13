@@ -19,7 +19,7 @@ $client = $clientStmt->fetch();
 if (!$client) {
     api_error('Selected client was not found.', 422, ['client_id' => 'Select a valid client.']);
 }
-if (empty($client['short_code'])) {
+if (!valid_company_short_code((string) ($client['short_code'] ?? ''))) {
     api_error('Selected client is missing a short code.', 422, ['client_id' => 'Update the client short code first.']);
 }
 

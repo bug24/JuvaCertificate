@@ -23,7 +23,7 @@ if (!in_array((string) $source['status'], ['approved', 'correction', 'issued', '
 $clientStmt = db()->prepare('SELECT id, short_code, name FROM clients WHERE id = ? LIMIT 1');
 $clientStmt->execute([(int) $source['client_id']]);
 $client = $clientStmt->fetch();
-if (!$client || empty($client['short_code'])) {
+if (!$client || !valid_company_short_code((string) ($client['short_code'] ?? ''))) {
     api_error('The source client needs a short code before renewal can continue.', 422, ['client_id' => 'Update the client short code first.']);
 }
 
