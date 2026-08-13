@@ -13,6 +13,9 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($sourceRoo
     if (!is_file($target)) { $failures[] = "Missing deployment file: {$relative}"; continue; }
     if (hash_file('sha256', $file->getPathname()) !== hash_file('sha256', $target)) $failures[] = "Deployment file differs: {$relative}";
 }
+$privateTool = $root . DIRECTORY_SEPARATOR . 'deployment' . DIRECTORY_SEPARATOR . 'juva-certify-cpanel-fresh' . DIRECTORY_SEPARATOR . 'private' . DIRECTORY_SEPARATOR . 'tools' . DIRECTORY_SEPARATOR . 'reconcile-certificate-numbers.php';
+if (!is_file($privateTool)) $failures[] = 'Missing deployment private tool: reconcile-certificate-numbers.php';
+if (is_file($privateTool) && hash_file('sha256', $privateTool) !== hash_file('sha256', $root . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'reconcile-certificate-numbers.php')) $failures[] = 'Deployment private reconciliation tool differs from source.';
 foreach (['certificates/readiness.php', 'certificates/preview.php', 'certificates/generate.php', 'certificates/verify.php', 'auth/login.php', 'auth/verify-otp.php', 'dashboard/summary.php', 'inspections/index.php'] as $entry) {
     $path = $deployment . DIRECTORY_SEPARATOR . $entry;
     if (!is_file($path)) { $failures[] = "Missing runtime entry: {$entry}"; continue; }

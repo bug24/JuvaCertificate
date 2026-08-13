@@ -2,6 +2,19 @@
 require_once __DIR__ . '/../mappers/shackles_mapper.php';
 require_once __DIR__ . '/landscape_pdf.php';
 
+function shackles_certificate_number_text(string $number): string
+{
+    return "CERTIFICATE NO:\n" . strtoupper(trim($number));
+}
+
+function shackles_upper_information_cells(array $payload): array
+{
+    return [
+        'certificate_number' => shackles_certificate_number_text((string) ($payload['certificate_number'] ?? '')),
+        'status_legend' => "STATUS:\nND - NO DEFECT, SDR - SEE DEFECT REPORT\nNF - NOT FOUND, OBS - OBSERVATION",
+    ];
+}
+
 function shackles_render_certificate_pdf(string $path, array $p): void
 {
     $im=imagecreatetruecolor(2339,1654); imagefilledrectangle($im,0,0,2339,1654,certificate_color($im,'#FFFFFF'));
@@ -22,10 +35,11 @@ function shackles_render_certificate_pdf(string $path, array $p): void
     $status=strtoupper((string)($p['status']??'VALID')); certificate_draw_status_badge($im,$status,2070,260,195,55,$bold,22);
 
     $x=60;$w=2219;$y=475;$fields=$p['fields'];
-    $clientW=1050;$premW=545;$legendW=$w-$clientW-$premW;
+    $clientW=1050;$premW=545;$infoW=$w-$clientW-$premW;$certificateW=365;$legendW=$infoW-$certificateW;$upperInfo=shackles_upper_information_cells($p);
     $cell($im,$x,$y,$clientW,105,"NAME AND ADDRESS OF EMPLOYER FOR WHOM THE THOROUGH EXAMINATION WAS MADE:\n".strtoupper((string)$p['client_name'])."\n".strtoupper((string)$p['client_address']),18,$font);
     $cell($im,$x+$clientW,$y,$premW,105,"ADDRESS OF PREMISES AT WHICH THE EXAMINATION WAS MADE:\n".strtoupper((string)$p['inspection_location']),18,$font,'center');
-    $cell($im,$x+$clientW+$premW,$y,$legendW,105,"STATUS:\nND - NO DEFECT, SDR - SEE DEFECT REPORT\nNF - NOT FOUND, OBS - OBSERVATION",16,$font);$y+=105;
+    $cell($im,$x+$clientW+$premW,$y,$certificateW,105,$upperInfo['certificate_number'],18,$bold,'center');
+    $cell($im,$x+$clientW+$premW+$certificateW,$y,$legendW,105,$upperInfo['status_legend'],14,$font);$y+=105;
 
     $widths=[72,270,285,150,190,225,195,145,205,140,142];$headers=['S/N','IDENTIFICATION NUMBER','DESCRIPTION','WLL OR SWL','LAST THOROUGH EXAMINATION','MANUFACTURER','NEXT THOROUGH EXAMINATION','REASON CODE','DETAILS OF TEST','STATUS','SAFE TO USE'];$cx=$x;foreach($widths as $i=>$cw){$cell($im,$cx,$y,$cw,84,$headers[$i],15,$bold,'center');$cx+=$cw;}$y+=84;
     $items=$p["items"];$rowH=count($items)>4?60:72;foreach($items as $index=>$item){$values=[($item["serial_number"]??"")!==""?$item["serial_number"]:(string)($index+1),$item["serial_number"]??"",$item["description"]??"",$item["swl_wll"]??"",$item["date_last_examined"]??"",$item["manufacturer"]??"",shackles_date((string)($p["expiry_date"]??"")),"",$item["remarks"]??"",strtoupper((string)($item["status"]??"")),"YES"]; $cx=$x; foreach($widths as $i=>$cw){$cell($im,$cx,$y,$cw,$rowH,(string)$values[$i],$i===2?18:16,$i===2?$bold:$font,"center");$cx+=$cw;} $y+=$rowH;}
@@ -33,7 +47,7 @@ function shackles_render_certificate_pdf(string $path, array $p): void
     $signW=(int)($w/2);$cell($im,$x,$y,$signW,130,"NAME & QUALIFICATIONS OF THE PERSON MAKING THIS REPORT:\n".strtoupper((string)$p['inspector_name'])."\n".strtoupper((string)$p['inspector_qualification'])."\nSIGNATURE:",18,$font);$cell($im,$x+$signW,$y,$w-$signW,130,"PERSON SIGNING OR AUTHENTICATING THIS REPORT:\n".strtoupper((string)$p['authenticator_name'])."\n".strtoupper((string)$p['authenticator_qualification'])."\nSIGNATURE:",18,$font);$auth=is_array($p['authentication']??null)?$p['authentication']:[];if(!empty($auth['inspector_signature_path']))$put($im,(string)$auth['inspector_signature_path'],$x+690,$y+70,180,50);if(!empty($auth['authenticator_signature_path']))$put($im,(string)$auth['authenticator_signature_path'],$x+$signW+690,$y+70,180,50);$y+=130;
     $labelW=470;$ynW=90;$markW=70;$cell($im,$x,$y,$labelW,52,'DEFECT / OBSERVATION SHEET ATTACHED?',17,$bold);$cell($im,$x+$labelW,$y,$ynW,52,'YES',17,$bold,'center');$cell($im,$x+$labelW+$ynW,$y,$markW,52,'',17,$font);$cell($im,$x+$labelW+$ynW+$markW,$y,$ynW,52,'NO',17,$bold,'center');$cell($im,$x+$labelW+($ynW*2)+$markW,$y,$markW,52,'',17,$font);$attached=strtolower((string)($fields['defect_observation_sheet_attached']??''));if($attached==='yes')$tick($im,$x+$labelW+$ynW,$y,$markW,52);if($attached==='no')$tick($im,$x+$labelW+($ynW*2)+$markW,$y,$markW,52);
     $y+=64;
-    $metaW=[520,630,500,569];$meta=["CERTIFICATE NO:\n".$p['certificate_number'],"DATE OF THIS THOROUGH EXAMINATION:\n".shackles_date((string)$p['examination_date']),"COLOUR CODE:\n".strtoupper((string)($fields['colour_code']??'')),"STANDARD:\n".strtoupper((string)($fields['standard']??''))];$cx=$x;foreach($metaW as $i=>$cw){$cell($im,$cx,$y,$cw,72,$meta[$i],19,$i<2?$bold:$font,'center');$cx+=$cw;}$y+=72;
+    $metaW=[520,630,500,569];$meta=[shackles_certificate_number_text((string)$p['certificate_number']),"DATE OF THIS THOROUGH EXAMINATION:\n".shackles_date((string)$p['examination_date']),"COLOUR CODE:\n".strtoupper((string)($fields['colour_code']??'')),"STANDARD:\n".strtoupper((string)($fields['standard']??''))];$cx=$x;foreach($metaW as $i=>$cw){$cell($im,$cx,$y,$cw,72,$meta[$i],19,$i<2?$bold:$font,'center');$cx+=$cw;}$y+=72;
 
     $footerY=$y+75;$put($im,$asset.'/bsi-logo.png',$x,$footerY,125,90);$put($im,$asset.'/leea-logo.png',$x+150,$footerY,115,90);$put($im,$asset.'/asnt-logo.png',$x+290,$footerY,150,90);
     $fit($im,strtoupper((string)$p['company']['name'])."\n".(string)$p['company']['operational']."\n".(string)$p['company']['phone'].' | '.(string)$p['company']['email'],$x+480,$footerY,1080,105,15,$font);
