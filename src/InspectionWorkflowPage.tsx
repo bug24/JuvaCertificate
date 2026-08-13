@@ -875,8 +875,8 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
         <select value={statusFilter} onChange={(e)=>setStatusFilter(e.target.value)}><option value="">All statuses</option><option value="correction">My corrections required</option><option value="draft">Draft</option><option value="submitted">Submitted</option><option value="approved">Approved</option><option value="issued">Issued</option><option value="expired">Expired</option><option value="revoked">Revoked</option></select>
         <span>{rows.filter((row)=>String(row.status)==="correction").length} returned</span>
       </div>
-      <div className="table-scroll">
-        <table>
+      <div className="table-scroll inspection-register-scroll">
+        <table className="inspection-register-table">
           <thead>
             <tr>
               <th>Reference</th>
@@ -892,16 +892,16 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
           </thead>
           <tbody>
             {filteredRows.map((row) => <tr key={row.id}>
-              <td className="mono">{row.reference}</td>
-              <td>{row.client_name}</td>
-              <td>{row.asset_code} - {row.equipment_name}</td>
-              <td>{row.category_name}</td>
-              <td>{row.inspector_name}</td>
-              <td>{row.inspection_date}</td>
-              <td><StatusBadge status={lifecycleLabel(String(row.status))} /></td>
-              <td><input className="table-input" value={comment[row.id] || ""} onChange={(e) => setComment((current) => ({ ...current, [row.id]: e.target.value }))} placeholder="Comment or correction note" /></td>
-              <td>
-                <div className="row-actions wrap-actions">
+              <td className="mono inspection-reference-cell" title={row.reference}>{row.reference}</td>
+              <td className="inspection-client-cell" title={row.client_name}>{row.client_name}</td>
+              <td className="inspection-equipment-cell" title={`${row.asset_code} - ${row.equipment_name}`}>{row.asset_code} - {row.equipment_name}</td>
+              <td className="inspection-category-cell" title={row.category_name}>{row.category_name}</td>
+              <td className="inspection-inspector-cell" title={row.inspector_name}>{row.inspector_name}</td>
+              <td className="inspection-date-cell">{row.inspection_date}</td>
+              <td className="inspection-status-cell"><StatusBadge status={lifecycleLabel(String(row.status))} /></td>
+              <td className="inspection-notes-cell"><input className="table-input" aria-label={`Reviewer note for ${row.reference}`} value={comment[row.id] || ""} onChange={(e) => setComment((current) => ({ ...current, [row.id]: e.target.value }))} placeholder="Comment or correction note" /></td>
+              <td className="inspection-actions-cell">
+                <div className="row-actions wrap-actions inspection-row-actions">
                   {can(user, "inspections.edit") && <button className="link-button" onClick={() => void addComment(Number(row.id))}>Comment</button>}
                   {can(user, "inspections.edit") && ["draft", "correction"].includes(String(row.status)) && <button className="link-button" onClick={() => void editInspection(Number(row.id))}><Pencil size={14} />{String(row.status) === "correction" ? "Continue Correction" : "Edit"}</button>}
                   {can(user, "inspections.edit") && ["draft", "correction"].includes(String(row.status)) && <button className="link-button" onClick={() => void setStatus(Number(row.id), "submitted")}>{privilegedSubmitter ? "Submit & issue" : "Submit"}</button>}
