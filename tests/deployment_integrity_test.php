@@ -16,9 +16,13 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($sourceRoo
 $privateTool = $root . DIRECTORY_SEPARATOR . 'deployment' . DIRECTORY_SEPARATOR . 'juva-certify-cpanel-fresh' . DIRECTORY_SEPARATOR . 'private' . DIRECTORY_SEPARATOR . 'tools' . DIRECTORY_SEPARATOR . 'reconcile-certificate-numbers.php';
 if (!is_file($privateTool)) $failures[] = 'Missing deployment private tool: reconcile-certificate-numbers.php';
 if (is_file($privateTool) && hash_file('sha256', $privateTool) !== hash_file('sha256', $root . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'reconcile-certificate-numbers.php')) $failures[] = 'Deployment private reconciliation tool differs from source.';
-foreach (['certificates/readiness.php', 'certificates/preview.php', 'certificates/generate.php', 'certificates/verify.php', 'auth/login.php', 'auth/verify-otp.php', 'dashboard/summary.php', 'inspections/index.php'] as $entry) {
+foreach (['certificates/batch.php', 'certificates/readiness.php', 'certificates/preview.php', 'certificates/generate.php', 'certificates/verify.php', 'auth/login.php', 'auth/verify-otp.php', 'dashboard/summary.php', 'inspections/index.php'] as $entry) {
     $path = $deployment . DIRECTORY_SEPARATOR . $entry;
     if (!is_file($path)) { $failures[] = "Missing runtime entry: {$entry}"; continue; }
+}
+$deploymentPublic = dirname($deployment);
+foreach (['vendor/autoload.php', 'vendor/setasign/fpdf/fpdf.php', 'vendor/setasign/fpdi/src/Fpdi.php'] as $dependency) {
+    if (!is_file($deploymentPublic . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $dependency))) $failures[] = "Missing deployment PDF dependency: {$dependency}";
 }
 if ($failures) { fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL); exit(1); }
 echo "Deployment integrity passed: source and cPanel API trees are complete and synchronized." . PHP_EOL;

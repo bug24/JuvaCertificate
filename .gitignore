@@ -26,3 +26,8 @@ deployment/juva-certify-cpanel-production/
 database/migrations/localhost.prepared.sql
 docs/security-and-deployment/orphan-files-report.json
 docs/security-and-deployment/storage-cleanup-report.json
+
+# Reproducible Composer package archives used by local package repositories.
+!packages/
+!packages/setasign-fpdf-1.9.0.zip
+!packages/setasign-fpdi-2.6.8.zip

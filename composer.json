@@ -1,30 +1,74 @@
 {
-    "name":  "juva-oil/certify-manager",
-    "description":  "JUVA Oil inspection and certification manager backend dependencies",
-    "type":  "project",
-    "require":  {
-                    "phpmailer/phpmailer":  "6.10.0"
-                },
-    "config":  {
-                   "optimize-autoloader":  true,
-                   "sort-packages":  true
-               },
-    "repositories":  [
-                         {
-                             "type":  "package",
-                             "package":  {
-                                             "dist":  {
-                                                          "url":  "packages/phpmailer-6.10.0.zip",
-                                                          "type":  "zip"
-                                                      },
-                                             "name":  "phpmailer/phpmailer",
-                                             "version":  "6.10.0",
-                                             "autoload":  {
-                                                              "psr-4":  {
-                                                                            "PHPMailer\\PHPMailer\\":  "src/"
-                                                                        }
-                                                          }
-                                         }
-                         }
-                     ]
+  "name": "juva-oil/certify-manager",
+  "description": "JUVA Oil inspection and certification manager backend dependencies",
+  "type": "project",
+  "require": {
+    "phpmailer/phpmailer": "6.10.0",
+    "setasign/fpdf": "1.9.0",
+    "setasign/fpdi": "2.6.8"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  },
+  "repositories": [
+    {
+      "type": "package",
+      "package": {
+        "name": "phpmailer/phpmailer",
+        "version": "6.10.0",
+        "dist": {
+          "url": "packages/phpmailer-6.10.0.zip",
+          "type": "zip"
+        },
+        "autoload": {
+          "psr-4": {
+            "PHPMailer\\PHPMailer\\": "src/"
+          }
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "setasign/fpdf",
+        "version": "1.9.0",
+        "type": "library",
+        "dist": {
+          "url": "packages/setasign-fpdf-1.9.0.zip",
+          "type": "zip",
+          "shasum": "49e7027faaadef5a6feadafde55ff01ab7c29fc9"
+        },
+        "autoload": {
+          "classmap": ["fpdf.php"]
+        },
+        "require": {
+          "ext-gd": "*",
+          "ext-zlib": "*"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "setasign/fpdi",
+        "version": "2.6.8",
+        "type": "library",
+        "dist": {
+          "url": "packages/setasign-fpdi-2.6.8.zip",
+          "type": "zip",
+          "shasum": "a7e039fe1905683d0ca091ef088e8cd6be0ab04d"
+        },
+        "autoload": {
+          "psr-4": {
+            "setasign\\Fpdi\\": "src/"
+          }
+        },
+        "require": {
+          "php": ">=7.2 <=8.5.99999",
+          "ext-zlib": "*"
+        }
+      }
+    }
+  ]
 }

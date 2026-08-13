@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1666863d8b8041f23c6fd1ce5ea7363f",
+    "content-hash": "2cdc5222a9db296f1da72055598f2852",
     "packages": [
         {
             "name": "phpmailer/phpmailer",
@@ -17,6 +17,44 @@
             "autoload": {
                 "psr-4": {
                     "PHPMailer\\PHPMailer\\": "src/"
+                }
+            }
+        },
+        {
+            "name": "setasign/fpdf",
+            "version": "1.9.0",
+            "dist": {
+                "type": "zip",
+                "url": "packages/setasign-fpdf-1.9.0.zip",
+                "shasum": "49e7027faaadef5a6feadafde55ff01ab7c29fc9"
+            },
+            "require": {
+                "ext-gd": "*",
+                "ext-zlib": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "fpdf.php"
+                ]
+            }
+        },
+        {
+            "name": "setasign/fpdi",
+            "version": "2.6.8",
+            "dist": {
+                "type": "zip",
+                "url": "packages/setasign-fpdi-2.6.8.zip",
+                "shasum": "a7e039fe1905683d0ca091ef088e8cd6be0ab04d"
+            },
+            "require": {
+                "ext-zlib": "*",
+                "php": ">=7.2 <=8.5.99999"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "setasign\\Fpdi\\": "src/"
                 }
             }
         }
