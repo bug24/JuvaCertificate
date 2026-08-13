@@ -36,6 +36,7 @@ $stmt = db()->prepare('SELECT id,attachment_type,file_name,file_path,mime_type,f
 $stmt->execute([$id]);
 $attachments = $stmt->fetchAll() ?: [];
 $auth = certificate_authentication_assets($inspection, $rows, $attachments);
+$rows = certificate_apply_identity_to_field_rows($rows, $auth);
 if ((int) ($inspection['show_inspector_signature'] ?? 1) !== 1) $auth['inspector_signature_path'] = null;
 if ((int) ($inspection['show_authenticator_signature'] ?? 1) !== 1) $auth['authenticator_signature_path'] = null;
 if ((int) ($inspection['show_company_stamp'] ?? 0) !== 1) $auth['company_stamp_path'] = null;

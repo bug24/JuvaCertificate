@@ -14,11 +14,11 @@ function hook_render_certificate_pdf(string $path, array $p): void
     $rounded=static function($im,int $x1,int $y1,int $x2,int $y2,int $r) use($line):void{$c=certificate_color($im,$line);imageline($im,$x1+$r,$y1,$x2-$r,$y1,$c);imageline($im,$x1+$r,$y2,$x2-$r,$y2,$c);imageline($im,$x1,$y1+$r,$x1,$y2-$r,$c);imageline($im,$x2,$y1+$r,$x2,$y2-$r,$c);imagearc($im,$x1+$r,$y1+$r,$r*2,$r*2,180,270,$c);imagearc($im,$x2-$r,$y1+$r,$r*2,$r*2,270,360,$c);imagearc($im,$x1+$r,$y2-$r,$r*2,$r*2,90,180,$c);imagearc($im,$x2-$r,$y2-$r,$r*2,$r*2,0,90,$c);};
     $text=static function($im,string $v,int $x,int $y,int $s,?string $f,string $align='left') use($ink):void{certificate_draw_text($im,$v,$x,$y,$s,$ink,$f,$align);};
 
-    $put($im,$asset.'/leea-logo.png',65,35,175,120); $put($im,certificate_runtime_asset('logo.png'),1950,20,300,165);
-    $rounded($im,320,60,2015,155,18); $text($im,'JUVA-OIL SERVICES (NIG) LIMITED',1168,128,42,$bold,'center');
+    $put($im,$asset.'/leea-logo.png',65,35,175,120); $put($im,certificate_runtime_asset('logo.png'),1940,20,330,190);
+    $rounded($im,320,60,1900,155,18); $text($im,'JUVA-OIL SERVICES (NIG) LIMITED',1168,128,42,$bold,'center');
     $text($im,'CERTIFICATE OF THOROUGH EXAMINATION',1168,215,35,$bold,'center');
     foreach(["This report complies with the Lifting Equipment Engineers Association's technical requirements",'The Lifting Operations and Lifting Equipment Regulations 1998 SI NO.2307','The Supply of Machinery (Safety) Regulation 1992 SI NO.3073','The Provision and Use of Work Equipment Regulations 1998 SI NO.2306','Nigeria Factories Act CAP F1 LFN, 2004'] as $i=>$r)$text($im,$r,1168,258+($i*24),17,$font,'center');
-    $status=strtoupper((string)($p['status']??'VALID')); $sc=$status==='REVOKED'?'#9B1C1C':($status==='EXPIRED'?'#8A5600':'#198754'); imagefilledrectangle($im,2070,180,2265,235,certificate_color($im,$sc));certificate_draw_text($im,$status,2167,218,22,$sc,$bold,'center');
+    $status=strtoupper((string)($p['status']??'VALID')); certificate_draw_status_badge($im,$status,2070,260,195,55,$bold,22);
 
     $x=60;$w=2219;$y=475;$fields=$p['fields'];
     $metaW=[430,500,430,400,459];$meta=["CERTIFICATE NO:\n".$p['certificate_number'],"DATE OF THOROUGH EXAMINATION:\n".hook_date((string)$p['examination_date']),"DATE OF REPORT:\n".hook_date((string)$p['report_date']),"COLOUR CODE:\n".strtoupper((string)($fields['colour_code']??'')),"STANDARD:\n".strtoupper((string)($fields['standard']??''))];$cx=$x;foreach($metaW as $i=>$cw){$cell($im,$cx,$y,$cw,72,$meta[$i],19,$i<3?$bold:$font,'center');$cx+=$cw;}$y+=72;

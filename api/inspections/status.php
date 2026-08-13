@@ -23,6 +23,12 @@ if (!$inspection) {
     api_error('Inspection not found.', 404);
 }
 
+if ($status === 'submitted') {
+    $identityErrors = [];
+    if (empty($inspection['inspector_id'])) $identityErrors['inspector_id'] = 'Select the Inspector (Prepared by) before submission.';
+    if (empty($inspection['authenticator_id'])) $identityErrors['authenticator_id'] = 'Select the Authenticator (Authorized by) before submission.';
+    if ($identityErrors) api_error('Select both certificate identities before submission.', 422, $identityErrors);
+}
 $current = (string) $inspection['status'];
 $transitions = [
     'draft' => ['submitted'],

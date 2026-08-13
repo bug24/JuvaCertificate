@@ -277,17 +277,17 @@ function ccu_render_certificate_pdf(string $path, array $payload): void
     $putPng($watermark, $sx(150), $sy(260), $sx(500), $sy(500), 100);
 
     $logoPath = certificate_runtime_asset('logo.png');
-    imagerectangle($canvas, $sx(116), $sy(36), $sx(169), $sy(98), certificate_color($canvas, $line));
+    imagerectangle($canvas, $sx(70), $sy(25), $sx(160), $sy(115), certificate_color($canvas, $line));
     if (is_file($logoPath)) {
         $logoInfo = @getimagesize($logoPath);
         if ($logoInfo) {
-            $boxW = $sx(70);
-            $boxH = $sy(70);
+            $boxW = $sx(90);
+            $boxH = $sy(90);
             $scale = min($boxW / max(1, $logoInfo[0]), $boxH / max(1, $logoInfo[1]));
             $logoW = max(1, (int) round($logoInfo[0] * $scale));
             $logoH = max(1, (int) round($logoInfo[1] * $scale));
-            $logoX = $sx(116) + (int) floor(($sx(70) - $logoW) / 2);
-            $logoY = $sy(36) + (int) floor(($sy(70) - $logoH) / 2);
+            $logoX = $sx(70) + (int) floor(($sx(90) - $logoW) / 2);
+            $logoY = $sy(25) + (int) floor(($sy(90) - $logoH) / 2);
             $putPng($logoPath, $logoX, $logoY, $logoW, $logoH, 100);
         }
     }
@@ -299,13 +299,11 @@ function ccu_render_certificate_pdf(string $path, array $payload): void
     $putPng($assetDir . '/leea-logo.png', $sx(596), $sy(47), $sx(61), $sy(46), 100);
 
     $effectiveStatus = strtoupper((string) ($payload['status'] ?? 'valid'));
-    $statusColor = $effectiveStatus === 'REVOKED' ? '#A61B1B' : ($effectiveStatus === 'EXPIRED' ? '#8A5A00' : '#198754');
     $statusX = $sx(655);
     $statusY = $sy(103);
     $statusW = $sx(52);
     $statusH = $sy(20);
-    imagefilledrectangle($canvas, $statusX, $statusY, $statusX + $statusW, $statusY + $statusH, certificate_color($canvas, $statusColor));
-    ccu_draw_text_fit($canvas, $effectiveStatus, $statusX, $statusY, $statusW, $statusH, 15, '#FFFFFF', $bold, true, 'center');
+    certificate_draw_status_badge($canvas, $effectiveStatus, $statusX, $statusY, $statusW, $statusH, $bold, 15);
 
     $textAt('CERTIFICATE OF VISUAL EXAMINATION', $sx(396), $sy(108), 28, $ink, true, 'center');
     $regLines = [

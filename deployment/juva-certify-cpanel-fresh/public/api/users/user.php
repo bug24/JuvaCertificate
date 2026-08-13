@@ -36,7 +36,7 @@ if ($role['slug'] === 'client' && empty($input['client_id']) && empty($target['c
     api_error('Client users must be linked to a client.', 422, ['client_id' => 'Select a client.']);
 }
 
-$stmt = db()->prepare('UPDATE users SET role_id = ?, client_id = ?, name = ?, email = ?, username = ?, phone = ?, qualification = ?, updated_at = ? WHERE id = ?');
+$stmt = db()->prepare('UPDATE users SET role_id = ?, client_id = ?, name = ?, email = ?, username = ?, phone = ?, qualification = ?, job_title = ?, professional_memberships = ?, certificate_signing_role = ?, updated_at = ? WHERE id = ?');
 $stmt->execute([
     $roleId,
     array_key_exists('client_id', $input) && $input['client_id'] !== null && $input['client_id'] !== '' ? (int) $input['client_id'] : $target['client_id'],
@@ -45,6 +45,9 @@ $stmt->execute([
     isset($input['username']) ? trim((string) $input['username']) : $target['username'],
     array_key_exists('phone', $input) ? trim((string) $input['phone']) : $target['phone'],
     array_key_exists('qualification', $input) ? trim((string) $input['qualification']) : $target['qualification'],
+    array_key_exists('job_title', $input) ? trim((string) $input['job_title']) : $target['job_title'],
+    array_key_exists('professional_memberships', $input) ? trim((string) $input['professional_memberships']) : $target['professional_memberships'],
+    array_key_exists('certificate_signing_role', $input) ? trim((string) $input['certificate_signing_role']) : $target['certificate_signing_role'],
     now_sql(),
     $id,
 ]);

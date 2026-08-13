@@ -66,14 +66,12 @@ function flat_webbing_sling_render_certificate_pdf(string $path, array $p): void
     };
 
     $put($im, $asset . '/leea-logo.png', 105, 45, 185, 125);
-    $put($im, certificate_runtime_asset('logo.png'), 1325, 35, 300, 150);
-    $roundedBox($im, 315, 65, 1305, 155, 18, '#FFFFFF', $line);
+    $put($im, certificate_runtime_asset('logo.png'), 1275, 25, 330, 170);
+    $roundedBox($im, 400, 65, 1250, 155, 18, '#FFFFFF', $line);
     $text($im, 'JUVA-OIL SERVICES (NIG) LIMITED', 810, 125, 38, $bold, 'center');
     $text($im, 'CERTIFICATE OF THOROUGH EXAMINATION', 827, 210, 30, $bold, 'center');
     $status = strtoupper((string) ($p['status'] ?? 'VALID'));
-    $statusColor = $status === 'REVOKED' ? '#9B1C1C' : ($status === 'EXPIRED' ? '#8A5600' : '#198754');
-    imagefilledrectangle($im, 1364, 180, 1541, 240, certificate_color($im, $statusColor));
-    certificate_draw_text($im, $status, 1452, 219, 21, $statusColor, $bold, 'center');
+    certificate_draw_status_badge($im, $status, 1364, 180, 177, 60, $bold, 21);
     $reg = [
         "This report complies with the Lifting Equipment Engineers Association's technical requirements",
         'The Lifting Operations and Lifting Equipment Regulations 1998 SI NO.2307',

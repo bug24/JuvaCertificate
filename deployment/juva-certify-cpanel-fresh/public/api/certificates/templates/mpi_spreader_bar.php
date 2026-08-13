@@ -19,12 +19,12 @@ function mpi_spreader_bar_render_certificate_pdf(string $path,array $p):void
     $selected=function(string $key,string $choice)use($fields):bool{return in_array(strtolower($choice),mpi_spreader_bar_list($fields[$key]??''),true);};
     $field=function(string $key,string $fallback='')use($fields):string{$v=trim((string)($fields[$key]??''));return $v!==''?$v:$fallback;};
 
-    $put($im,certificate_runtime_asset('logo.png'),$x-25,$y-15,220,145);
+    $put($im,certificate_runtime_asset('logo.png'),$x-30,$y-20,280,170);
     $put($im,$asset.'/leea-logo.png',$x+$w-155,$y,145,115);
-    imagearc($im,$x+190,$y+3,1040,92,0,360,certificate_color($im,'#222'));imagerectangle($im,$x+190,$y+3,$x+1230,$y+95,certificate_color($im,'#222'));
-    $text($im,'JUVA-OIL SERVICES (NIG) LIMITED',$x+710,$y+65,36,$black,$bold,'center');
-    $status=strtoupper((string)($p['status']??'VALID'));$statusColor=$status==='VALID'?$green:$red;
-    imagefilledrectangle($im,$x+$w-155,$y+125,$x+$w-10,$y+170,certificate_color($im,$statusColor));$text($im,$status,$x+$w-82,$y+157,21,$statusColor,$bold,'center');
+    imagearc($im,$x+270,$y+3,960,92,0,360,certificate_color($im,'#222'));imagerectangle($im,$x+270,$y+3,$x+1230,$y+95,certificate_color($im,'#222'));
+    $text($im,'JUVA-OIL SERVICES (NIG) LIMITED',$x+750,$y+65,36,$black,$bold,'center');
+    $status=strtoupper((string)($p['status']??'VALID'));
+    certificate_draw_status_badge($im,$status,$x+$w-155,$y+125,145,45,$bold,21);
     $y+=145;$text($im,'VISUAL/MAGNETIC PARTICLE INSPECTION CERTIFICATE',$x+(int)($w/2),$y,29,$black,$bold,'center');$y+=36;
     foreach(["This report complies with the Lifting Equipment Engineers Association's technical requirements",'STATUTORY INSTRUMENTS 1990 NO.2307','The Lifting Operations and Lifting Equipment Regulations 1998','The Supply of Machinery (Safety) Regulation 1992','The Provision and Use of Work Equipment Regulations 1998'] as $line){$text($im,$line,$x+(int)($w/2),$y,14,$muted,$font,'center');$y+=20;}
     $y+=22;$third=(int)($w/3);

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../_bootstrap.php';
 require_once __DIR__ . '/../lib/certificate_status.php';
+require_once __DIR__ . '/../lib/certificate_download_renderer.php';
 
 require_method('GET');
 
@@ -48,6 +49,16 @@ if ($publicAccess && $effectiveStatus === 'revoked') {
 $path = resolve_storage_path((string) $certificate['pdf_path']);
 if (!$path) {
     api_error('File not found.', 404);
+}
+
+try {
+    $dynamicPath = certificate_render_existing_download($certificate);
+    if ($dynamicPath) {
+        $path = $dynamicPath;
+        register_shutdown_function(static function () use ($dynamicPath): void { @unlink($dynamicPath); });
+    }
+} catch (Throwable $error) {
+    error_log('Dynamic certificate download render failed for certificate ' . (int) $certificate['id'] . ': ' . $error->getMessage());
 }
 
 $downloadName = preg_replace('/[^A-Z0-9._-]/', '_', (string) $certificate['certificate_number']) . '-rev-' . (int) $certificate['revision'] . '.pdf';

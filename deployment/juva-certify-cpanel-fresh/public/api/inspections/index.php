@@ -270,6 +270,14 @@ if ($isUpdate) {
     $authenticatorId = !empty($input['authenticator_id']) ? $authenticatorId : (!empty($existingInspection['authenticator_id']) ? (int) $existingInspection['authenticator_id'] : null);
 }
 
+if (!$draftOnly) {
+    if (empty($input['inspector_id']) && (!$existingInspection || empty($existingInspection['inspector_id']))) {
+        $errors['inspector_id'] = 'Select the Inspector (Prepared by) before submission.';
+    }
+    if ($authenticatorId === null) {
+        $errors['authenticator_id'] = 'Select the Authenticator (Authorized by) before submission.';
+    }
+}
 $fieldStmt = db()->prepare('SELECT * FROM form_fields WHERE template_id = ? ORDER BY sort_order, id');
 $fieldStmt->execute([$template['id'] ?? 0]);
 $fieldRows = $fieldStmt->fetchAll();

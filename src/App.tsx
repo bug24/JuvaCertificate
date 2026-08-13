@@ -10,7 +10,7 @@ import { MailSettingsPanel } from "./MailSettingsPanel";
 
 type Page = "dashboard" | "clients" | "equipment" | "categories" | "inspections" | "certificates" | "verification" | "reports" | "users" | "audit";
 type Role = { id: number; name: string; slug: string; permissions: string[] };
-type AuthUser = { id: number; name: string; email: string; username: string; status: string; role: Role; last_login_at?: string | null; signature_original_name?: string | null; signature_is_active?: number | boolean; signature_url?: string | null };
+type AuthUser = { id: number; name: string; email: string; username: string; status: string; role: Role; last_login_at?: string | null; qualification?: string | null; job_title?: string | null; professional_memberships?: string | null; certificate_signing_role?: string | null; signature_original_name?: string | null; signature_is_active?: number | boolean; signature_url?: string | null };
 type ApiResponse<T> = { data: T | null; error: string | null; validation?: Record<string, string> | null };
 type NavItem = { id: Page; label: string; icon: typeof LayoutDashboard; permission?: string };
 

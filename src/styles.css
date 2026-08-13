@@ -1122,3 +1122,28 @@ html, body, #root {
 .stat-card-action { width: 100%; border: 1px solid var(--line); text-align: left; cursor: pointer; position: relative; transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
 .stat-card-action:hover, .stat-card-action:focus-visible { border-color: #4548e8; box-shadow: 0 8px 22px rgba(25, 26, 40, .08); transform: translateY(-1px); outline: none; }
 .stat-card-arrow { position: absolute; right: 14px; top: 17px; color: #6b6ee8; }
+.identity-selection-card {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 16px;
+  border: 1px solid #d8dce5;
+  border-radius: 8px;
+  background: #fff;
+}
+.identity-selection-card > strong { font-size: 13px; color: #171923; }
+.identity-selection-card > span { font-size: 11px; color: #626b7a; }
+.identity-selection-card select { width: 100%; }
+.profile-signature-state {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #f4f6f8;
+  color: #5d6675;
+  font-size: 11px;
+}
+.profile-signature-state.profile-signature-active {
+  background: #e9f8ef;
+  color: #176b3a;
+  font-weight: 700;
+}

@@ -83,6 +83,15 @@ function validateSectionRows(section: RecordRow, rows: Array<Record<string, stri
   return errors;
 }
 
+const identityFieldKeys = new Set([
+  "inspector_name", "inspector_name_snapshot", "inspector_qualification", "inspector_qualification_snapshot",
+  "authenticator_name", "authenticator_name_snapshot", "authenticator_qualification", "authenticator_qualifications", "authenticator_qualification_snapshot",
+]);
+
+function isIdentityField(field: RecordRow): boolean {
+  return identityFieldKeys.has(String(field.field_key || ""));
+}
+
 function stepErrors(step: number, form: Record<string, string>, fields: RecordRow[], values: Record<string, string>, sections: RecordRow[], items: ItemRows) {
   const errors: string[] = [];
   if (step === 0) {
@@ -99,6 +108,7 @@ function stepErrors(step: number, form: Record<string, string>, fields: RecordRo
   }
   if (step === 2) {
     for (const field of fields) {
+      if (isIdentityField(field)) continue;
       if (Number(field.is_required) === 1 && !["photo", "signature"].includes(String(field.field_type)) && !(values[String(field.id)] || "").trim()) {
         errors.push(`${field.label} is required.`);
       }
@@ -106,6 +116,10 @@ function stepErrors(step: number, form: Record<string, string>, fields: RecordRo
     for (const section of sections) {
       errors.push(...validateSectionRows(section, items[String(section.section_key)] || []));
     }
+  }
+  if (step === 3) {
+    if (!form.inspector_id) errors.push("Select the Inspector (Prepared by).");
+    if (!form.authenticator_id) errors.push("Select the Authenticator (Authorized by).");
   }
   return errors;
 }
@@ -265,6 +279,24 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
     });
   }
 
+  function renderIdentitySelector(kind: "inspector" | "authenticator"): ReactNode {
+    const list = kind === "inspector" ? inspectors : authenticators;
+    const selectedId = String(form[`${kind}_id`] || "");
+    const selectedName = String(form[`${kind}_name`] || "");
+    const selectedQualification = String(form[`${kind}_qualification`] || "");
+    const selected = list.find((item) => String(item.id) === selectedId);
+    const selectedIsAvailable = Boolean(selected);
+    return <>
+      <select value={selectedId} onChange={(event) => selectProfile(kind, event.target.value)}>
+        <option value="">Select {kind}</option>
+        {!selectedIsAvailable && selectedId && <option value={selectedId}>{selectedName || `Saved user #${selectedId}`} - {selectedQualification || "Qualification not set"} (saved profile)</option>}
+        {list.map((item) => <option key={item.id} value={item.id}>{item.name} - {item.qualification || "Qualification not set"}</option>)}
+      </select>
+      <span className="form-note">{selectedId ? (selectedQualification || "Qualification not set on this profile") : "Required before Submit & Issue."}</span>
+      {selectedId && <span className={`profile-signature-state ${selected?.signature_is_active ? "profile-signature-active" : ""}`}>{selected?.signature_is_active ? `Active profile signature: ${selected.signature_original_name || "available"}` : selectedIsAvailable ? "No active profile signature; the certificate will keep an empty signature area unless the template requires one." : "Saved historical profile; signature availability will be checked when the draft is saved."}</span>}
+    </>;
+  }
+
   function renderProfileField(field: RecordRow): ReactNode | null {
     const key = String(field.field_key || "");
     const inspector = key === "inspector_name" || key === "inspector_name_snapshot" || key === "inspector_qualification" || key === "inspector_qualification_snapshot";
@@ -415,6 +447,10 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
       location: String(inspection.location || ""),
       remarks: String(inspection.remarks || ""),
       result: String(inspection.result || "pending"),
+      inspector_name: String(inspection.inspector_name || ""),
+      inspector_qualification: String(inspection.inspector_qualification || ""),
+      authenticator_name: String(inspection.authenticator_name || ""),
+      authenticator_qualification: String(inspection.authenticator_qualification || ""),
     });
     setFields(fieldRows);
     setValues(mappedValues);
@@ -434,7 +470,8 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
 
     const blockingErrors = stepErrors(0, form, fields, values, sections, items)
       .concat(stepErrors(1, form, fields, values, sections, items))
-      .concat(stepErrors(2, form, fields, values, sections, items));
+      .concat(stepErrors(2, form, fields, values, sections, items))
+      .concat(stepErrors(3, form, fields, values, sections, items));
 
     if (submitNow && blockingErrors.length) {
       setError(`Certificate could not be issued. Complete:\n- ${blockingErrors.join("\n- ")}`);
@@ -670,6 +707,8 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
     ["Inspection date", form.inspection_date || "-"],
     ["Next due date", form.next_due_date || "-"],
     ["Location", form.location || "-"],
+    ["Inspector / Person Making the Report", inspectors.find((item) => String(item.id) === String(form.inspector_id))?.name || form.inspector_name || "-"],
+    ["Authenticator / Person Authenticating the Report", authenticators.find((item) => String(item.id) === String(form.authenticator_id))?.name || form.authenticator_name || "Not selected"],
     ["Evidence file", evidence?.name || "No new file uploaded"],
     ["Signature", signature?.name || "No new file uploaded"],
   ];
@@ -749,7 +788,7 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
 
           {step === 2 && <div className="wizard-grid wizard-grid-sections">
             {fields.length === 0 && sections.length === 0 && <div className="empty-state compact-empty"><AlertCircle size={26} /><strong>No dynamic fields for this category yet</strong><span>Publish category fields and repeatable checklists to collect category-specific inspection data here.</span></div>}
-            {fields.map((field) => <label id={`field-${field.field_key}`} key={field.id} className={String(field.field_type) === "textarea" ? "wide-field" : ""}>{field.label}{Number(field.is_required) === 1 ? " *" : ""}{renderProfileField(field) || renderField(field)}{field.help_text && <span className="form-note">{field.help_text}</span>}</label>)}
+            {fields.filter((field) => !isIdentityField(field)).map((field) => <label id={`field-${field.field_key}`} key={field.id} className={String(field.field_type) === "textarea" ? "wide-field" : ""}>{field.label}{Number(field.is_required) === 1 ? " *" : ""}{renderProfileField(field) || renderField(field)}{field.help_text && <span className="form-note">{field.help_text}</span>}</label>)}
             {sections.map((section) => {
               const sectionKey = String(section.section_key);
               const sectionRows = items[sectionKey] || [];
@@ -784,6 +823,8 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
           </div>}
 
           {step === 3 && <div className="wizard-grid">
+            <div className="identity-selection-card"><strong>Inspector (Prepared by) *</strong><span>Person who conducted and prepared this inspection report.</span>{renderIdentitySelector("inspector")}</div>
+            <div className="identity-selection-card"><strong>Authenticator (Authorized by) *</strong><span>Person who reviewed and authorized this inspection report.</span>{renderIdentitySelector("authenticator")}</div>
             <label>Evidence photos / PDF <span className="optional-label">Optional</span><input type="file" accept="image/*,.pdf" onChange={(e) => { const file=e.target.files?.[0] || null; setEvidence(file); setUploadStatus((current)=>({...current,evidence:file?`Pending - ${file.name} (${Math.ceil(file.size/1024)} KB)`:"Optional - no new evidence selected"})); }} /><span className="upload-state">{uploadStatus.evidence}</span>{evidence && <button type="button" className="link-button" onClick={() => { setEvidence(null); setUploadStatus((current)=>({...current,evidence:"Optional - pending selection cleared"})); }}>Clear selection</button>}</label>
             <label>Per-inspection signature <span className="optional-label">Optional</span><input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => { const file=e.target.files?.[0] || null; setSignature(file); setUploadStatus((current)=>({...current,signature:file?`Pending - ${file.name} (${Math.ceil(file.size/1024)} KB)`:"Optional - no new signature selected"})); }} /><span className="upload-state">{uploadStatus.signature}</span><span className="form-note">Overrides the assigned inspector's active profile signature for this inspection only.</span>{signature && <button type="button" className="link-button" onClick={() => { setSignature(null); setUploadStatus((current)=>({...current,signature:"Optional - pending selection cleared"})); }}>Clear selection</button>}</label>
             {attachments.length > 0 && <div className="wide-field existing-attachments"><strong>Uploaded files</strong>{attachments.map((file) => <div key={file.id} className="attachment-row"><a href={file.download_url} target="_blank" rel="noreferrer"><CheckCircle2 size={15}/><span>{file.file_name}</span><small>{file.attachment_type === "signature" ? "Inspection signature" : "Evidence"} - {Math.ceil(Number(file.file_size || 0)/1024)} KB - {file.mime_type}</small></a><button type="button" className="link-button danger-link" onClick={() => void removeAttachment(Number(file.id))}><Trash2 size={14}/>Remove</button></div>)}</div>}            {reviewComments.length > 0 && <div className="wide-field correction-context"><strong>Reviewer correction context</strong>{reviewComments.map((note) => <p key={note.id}><b>{note.user_name}:</b> {note.comment_text}</p>)}</div>}
