@@ -69,7 +69,7 @@ function shackles_render_certificate_pdf(string $path, array $p): void
     $labelValueCell($im,$x+$clientW,$y,$premW,115,'ADDRESS OF PREMISES AT WHICH THE EXAMINATION WAS MADE:',strtoupper((string)$p['inspection_location']),14,18,'center');
     $cell($im,$x+$clientW+$premW,$y,$legendW,115,"STATUS:\nND - NO DEFECT, SDR - SEE DEFECT REPORT\nNF - NOT FOUND, OBS - OBSERVATION (SEE DEFECT REPORT)",15,$font);$y+=115;
 
-    $widths=[72,265,285,150,195,205,205,145,205,140,152];
+    $widths=[72,285,315,170,215,225,225,155,225,150,182];
     $headers=["S/N","IDENTIFICATION NUMBER","DESCRIPTION","WLL OR SWL\n(TONNES)","DATE OF LAST\nTHOROUGH EXAMINATION","MANUFACTURER","LATEST DATE OF NEXT\nTHOROUGH EXAMINATION","REASON FOR EXAMINATION\n(SEE BELOW)","DETAILS OF ANY TEST","STATUS\n(SEE ABOVE)","SAFE TO USE\nYES / NO"];
     $cx=$x;foreach($widths as $i=>$cw){$cell($im,$cx,$y,$cw,96,$headers[$i],15,$font,'center');$cx+=$cw;}$y+=96;
     $items=$p['items'];$rowH=count($items)>4?58:(count($items)>2?68:82);

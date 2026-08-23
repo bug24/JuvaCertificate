@@ -24,4 +24,7 @@ $equipmentSource = file_get_contents(__DIR__ . '/../api/equipment/equipment.php'
 partial_date_assert(is_string($equipmentSource) && strpos($equipmentSource, 'manufacture_date_value') !== false && strpos($equipmentSource, 'manufacture_date_precision') !== false, '9. equipment edit retains value and precision');
 $workflowSource = file_get_contents(__DIR__ . '/../src/InspectionWorkflowPage.tsx');
 partial_date_assert(is_string($workflowSource) && strpos($workflowSource, 'manufacture_date_value') !== false && strpos($workflowSource, 'previous_examination_date') !== false, '10. inspection auto-population preserves equipment date precision');
+$recordSource = file_get_contents(__DIR__ . '/../src/RecordManagementPage.tsx');
+$yearInputGuard = 'if (/^\d{4}(-\d{2}(-\d{2})?)?$/.test(value))';
+partial_date_assert(is_string($recordSource) && strpos($recordSource, $yearInputGuard) !== false && is_string($workflowSource) && strpos($workflowSource, $yearInputGuard) !== false, '11. incomplete year input retains the selected year precision while typing');
 echo "PARTIAL DATE REGRESSION TESTS: PASS\n";

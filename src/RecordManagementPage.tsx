@@ -11,7 +11,9 @@ const equipmentFields = ["client_id", "asset_code", "name", "manufacturer", "mod
 function PartialDateInput({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   const detectedPrecision = /^\d{4}$/.test(value) ? "year" : /^\d{4}-\d{2}$/.test(value) ? "month" : "day";
   const [precision, setPrecision] = useState(detectedPrecision);
-  useEffect(() => { if (value) setPrecision(detectedPrecision); }, [value, detectedPrecision]);
+  useEffect(() => {
+    if (/^\d{4}(-\d{2}(-\d{2})?)?$/.test(value)) setPrecision(detectedPrecision);
+  }, [value, detectedPrecision]);
   return <div className="partial-date-control">
     <span>Date precision</span>
     <select value={precision} onChange={(event) => { setPrecision(event.target.value); onChange(""); }}>

@@ -38,6 +38,8 @@ shackles_test_assert($contract['table_columns']===['serial','identification','de
 shackles_test_assert($contract['signatory_columns']===['inspector','authenticator'],'original two-column signatory structure must remain');
 shackles_test_assert($contract['top_metadata']===['certificate_number','examination_date','colour_code','standard'],'top metadata order must match the mandated document');
 shackles_test_assert($contract['populated_values_bold']===true,'entered values must render bold');
+$templateSource = file_get_contents(__DIR__.'/../api/certificates/templates/shackles.php');
+shackles_test_assert(is_string($templateSource) && strpos($templateSource, '$widths=[72,285,315,170,215,225,225,155,225,150,182];') !== false, 'main table rows must span the full 2219-pixel form width');
 shackles_test_assert(shackles_item_value($p['items'][0],['identification_number','serial_number'])==='SHK-001','current identification field must map to the original identification column');
 shackles_test_assert(shackles_item_value(['serial_number'=>'LEGACY-1'],['identification_number','serial_number'])==='LEGACY-1','legacy Shackles identifiers must retain a safe renderer fallback');
 shackles_test_assert(($p['fields']['date_of_manufacture']??'')==='2029','year-only manufacture date must retain its precision');
