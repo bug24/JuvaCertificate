@@ -68,9 +68,14 @@ function endless_round_webbing_sling_readiness(array $inspection, array $rows, s
             $errors[$key] = ucwords(str_replace('_', ' ', $key)) . ' must be Yes or No.';
         }
     }
-    foreach (['report_date','date_of_manufacture','date_of_last_examination','action_due_date'] as $dateKey) {
+    foreach (['date_of_manufacture','date_of_last_examination'] as $dateKey) {
+        if (($fields[$dateKey] ?? '') !== '' && !valid_partial_date((string) $fields[$dateKey])) {
+            $errors[$dateKey] = ucwords(str_replace('_', ' ', $dateKey)) . ' must be a valid full date, month and year, or year.';
+        }
+    }
+    foreach (['report_date','action_due_date'] as $dateKey) {
         if (($fields[$dateKey] ?? '') !== '' && !valid_iso_date((string) $fields[$dateKey])) {
-            $errors[$dateKey] = ucwords(str_replace('_', ' ', $dateKey)) . ' must be a valid date.';
+            $errors[$dateKey] = ucwords(str_replace('_', ' ', $dateKey)) . ' must be a complete valid date.';
         }
     }
     if (($fields['report_date'] ?? '') !== '' && $exam !== '' && (string) $fields['report_date'] < $exam) {
@@ -143,7 +148,6 @@ function endless_round_webbing_sling_payload(array $inspection, array $rows, str
 
 function endless_round_webbing_sling_date(string $value): string
 {
-    $time = strtotime($value);
-    return $time === false ? $value : date('d/m/Y', $time);
+    return format_juva_partial_date($value);
 }
 

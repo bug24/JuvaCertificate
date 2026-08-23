@@ -51,6 +51,27 @@ function tone(status: string) {
   return "neutral";
 }
 
+function partialDateKey(key: string) {
+  return ["date_of_manufacture", "manufacture_date", "manufacture_date_value", "date_of_previous_examination", "previous_examination_date", "date_of_last_examination", "last_thorough_examination_date", "date_last_examined"].includes(key);
+}
+
+function PartialDateInput({ value, onChange, disabled = false }: { value: string; onChange: (value: string) => void; disabled?: boolean }) {
+  const detectedPrecision = /^\d{4}$/.test(value) ? "year" : /^\d{4}-\d{2}$/.test(value) ? "month" : "day";
+  const [precision, setPrecision] = useState(detectedPrecision);
+  useEffect(() => { if (value) setPrecision(detectedPrecision); }, [value, detectedPrecision]);
+  return <div className="partial-date-control">
+    <span>Date precision</span>
+    <select value={precision} disabled={disabled} onChange={(event) => { setPrecision(event.target.value); onChange(""); }}>
+      <option value="day">Full date</option>
+      <option value="month">Month + year</option>
+      <option value="year">Year only</option>
+    </select>
+    {precision === "day" && <input type="date" disabled={disabled} value={value} onChange={(event) => onChange(event.target.value)} />}
+    {precision === "month" && <input type="month" disabled={disabled} value={value} onChange={(event) => onChange(event.target.value)} />}
+    {precision === "year" && <input type="text" disabled={disabled} inputMode="numeric" pattern="[0-9]{4}" maxLength={4} placeholder="YYYY" value={value} onChange={(event) => onChange(event.target.value.replace(/\D/g, "").slice(0, 4))} />}
+  </div>;
+}
+
 function StatusBadge({ status }: { status: string }) {
   return <span className={`status-badge status-${tone(status)}`}>{status}</span>;
 }
@@ -166,6 +187,8 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
   const displayedReference = form.reference || referencePreview || "";
   const selectedCategory = categories.find((item) => String(item.id) === String(form.category_id || ""));
   const selectedEquipment = equipment.find((item) => String(item.id) === String(form.equipment_id || ""));
+  const selectedClient = clients.find((item) => String(item.id) === String(form.client_id || ""));
+  const isShackles = String(selectedCategory?.template_family || "") === "shackles";
   const isGeneralCategory = ["general_lifting_accessory", "general_thorough_examination"].includes(String(selectedCategory?.template_family || ""));
   const dedicatedSuggestions = useMemo(() => {
     if (!isGeneralCategory || !selectedEquipment) return [];
@@ -297,6 +320,65 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
     </>;
   }
 
+  useEffect(() => {
+    if (!selectedEquipment) return;
+    const authoritative: Record<string, string> = {
+      client_address: String(selectedClient?.address || ""),
+      inspection_location: String(form.location || selectedEquipment.location || ""),
+      accessory_type: String(selectedEquipment.name || ""),
+      manufacturer: String(selectedEquipment.manufacturer || ""),
+      standard: String(selectedEquipment.reference_standard || ""),
+      date_of_manufacture: String(selectedEquipment.manufacture_date_value || selectedEquipment.manufacture_date || ""),
+      date_of_previous_examination: String(selectedEquipment.previous_examination_date || ""),
+      safe_working_load: String(selectedEquipment.safe_working_load || ""),
+    };
+    setValues((current) => {
+      const next = { ...current };
+      let changed = false;
+      for (const field of fields) {
+        const key = String(field.field_key || "");
+        const currentValue = String(next[String(field.id)] || "");
+        if (Object.prototype.hasOwnProperty.call(authoritative, key) && (isShackles ? currentValue !== authoritative[key] : !currentValue.trim() && Boolean(authoritative[key]))) {
+          next[String(field.id)] = authoritative[key];
+          changed = true;
+        }
+      }
+      return changed ? next : current;
+    });
+    setItems((current) => {
+      let changed = false;
+      const next: ItemRows = { ...current };
+      for (const section of sections) {
+        const sectionKey = String(section.section_key);
+        const rows = [...(current[sectionKey] || [])];
+        if (!rows.length) continue;
+        const row = { ...rows[0] };
+        const defaults: Record<string, string> = {
+          identification_number: String(selectedEquipment.serial_number || selectedEquipment.asset_code || ""),
+          serial_number: String(selectedEquipment.serial_number || selectedEquipment.asset_code || ""),
+          description: String(selectedEquipment.name || ""),
+          swl_wll: String(selectedEquipment.safe_working_load || ""),
+          working_load_limit: String(selectedEquipment.safe_working_load || ""),
+          manufacturer: String(selectedEquipment.manufacturer || ""),
+          date_last_examined: String(selectedEquipment.previous_examination_date || ""),
+          last_thorough_examination_date: String(selectedEquipment.previous_examination_date || ""),
+          next_thorough_examination_date: String(form.next_due_date || ""),
+        };
+        for (const column of section.columns || []) {
+          const key = String(column.column_key || "");
+          const currentValue = String(row[key] || "");
+          if (Object.prototype.hasOwnProperty.call(defaults, key) && (isShackles ? currentValue !== defaults[key] : !currentValue.trim() && Boolean(defaults[key]))) {
+            row[key] = defaults[key];
+            changed = true;
+          }
+        }
+        rows[0] = row;
+        next[sectionKey] = rows;
+      }
+      return changed ? next : current;
+    });
+  }, [isShackles, selectedEquipment, selectedClient, form.location, form.next_due_date, fields, sections]);
+
   function renderProfileField(field: RecordRow): ReactNode | null {
     const key = String(field.field_key || "");
     const inspector = key === "inspector_name" || key === "inspector_name_snapshot" || key === "inspector_qualification" || key === "inspector_qualification_snapshot";
@@ -377,6 +459,9 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
     const value = values[String(field.id)] || "";
     const type = String(field.field_type);
     const placeholder = field.placeholder_text || "";
+    const key = String(field.field_key || "");
+    const authoritative = isShackles && ["client_address", "inspection_location", "accessory_type", "manufacturer", "standard", "date_of_manufacture", "date_of_previous_examination", "safe_working_load"].includes(key);
+    if (partialDateKey(key)) return <PartialDateInput value={value} disabled={authoritative} onChange={(next) => setDynamicValue(Number(field.id), next)} />;
     if (type === "textarea") return <textarea value={value} onChange={(e) => setDynamicValue(Number(field.id), e.target.value)} placeholder={placeholder} />;
     if (type === "select" || type === "pass_fail") {
       const options = type === "pass_fail" ? ["Pass", "Fail", "N/A"] : JSON.parse(field.options_json || "[]");
@@ -390,12 +475,15 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
       }
       return <select value={value} onChange={(e) => setDynamicValue(Number(field.id), e.target.value)}><option value="">Select</option><option value="Yes">Yes</option><option value="No">No</option></select>;
     }
-    return <input type={type === "date" ? "date" : type === "number" ? "number" : "text"} value={value} onChange={(e) => setDynamicValue(Number(field.id), e.target.value)} placeholder={placeholder} />;
+    return <input type={type === "date" ? "date" : type === "number" ? "number" : "text"} value={value} readOnly={authoritative} onChange={(e) => setDynamicValue(Number(field.id), e.target.value)} placeholder={placeholder} />;
   }
 
   function renderSectionCell(sectionKey: string, rowIndex: number, column: RecordRow) {
     const value = items[sectionKey]?.[rowIndex]?.[String(column.column_key)] || "";
     const type = String(column.column_type);
+    const key = String(column.column_key || "");
+    const authoritative = isShackles && rowIndex === 0 && ["identification_number", "serial_number", "description", "swl_wll", "working_load_limit", "manufacturer", "date_last_examined", "last_thorough_examination_date"].includes(key);
+    if (partialDateKey(key)) return <PartialDateInput value={value} disabled={authoritative} onChange={(next) => updateSectionCell(sectionKey, rowIndex, key, next)} />;
     if (type === "textarea") {
       return <textarea value={value} onChange={(e) => updateSectionCell(sectionKey, rowIndex, String(column.column_key), e.target.value)} placeholder={column.placeholder_text || ""} />;
     }
@@ -406,7 +494,7 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
     if (type === "checkbox") {
       return <select value={value} onChange={(e) => updateSectionCell(sectionKey, rowIndex, String(column.column_key), e.target.value)}><option value="">Select</option><option value="Yes">Yes</option><option value="No">No</option></select>;
     }
-    return <input type={type === "date" ? "date" : type === "number" ? "number" : "text"} value={value} onChange={(e) => updateSectionCell(sectionKey, rowIndex, String(column.column_key), e.target.value)} placeholder={column.placeholder_text || ""} />;
+    return <input type={type === "date" ? "date" : type === "number" ? "number" : "text"} value={value} readOnly={authoritative} onChange={(e) => updateSectionCell(sectionKey, rowIndex, String(column.column_key), e.target.value)} placeholder={column.placeholder_text || ""} />;
   }
 
   function resetWizard() {
@@ -798,6 +886,7 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
                   <div>
                     <strong>{section.label}</strong>
                     {section.help_text && <span>{section.help_text}</span>}
+                    {isShackles && <span>The first row is linked to the selected Equipment Register record. Add rows for additional shackles.</span>}
                   </div>
                   <button type="button" className="secondary-button" onClick={() => addSectionRow(section)} disabled={maxRows !== null && sectionRows.length >= maxRows}><Plus size={16} />Add row</button>
                 </div>

@@ -185,7 +185,7 @@ function validate_repeatable_items(array $itemsInput, array $sections, bool $enf
                         $normalizedRow[$columnKey] = (string) $value;
                         break;
                     case 'date':
-                        if (!valid_iso_date($value)) {
+                        if (supports_partial_historical_date_key($columnKey) ? !valid_partial_date($value) : !valid_iso_date($value)) {
                             $errors['items_' . $sectionKey . '_' . $rowIndex . '_' . $columnKey] = $column['label'] . ' must use a valid date.';
                             break;
                         }

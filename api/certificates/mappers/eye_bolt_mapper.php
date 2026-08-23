@@ -51,7 +51,8 @@ function eye_bolt_readiness(array $inspection, array $rows, array $items, string
     $required = ['identification_number'=>'Identification Number','description'=>'Description','working_load_limit'=>'WLL or SWL','manufacturer'=>'Manufacturer','next_thorough_examination_date'=>'Next Thorough Examination','reason_for_examination_code'=>'Reason Code','test_details'=>'Test Details','status_code'=>'Status','safe_to_use'=>'Safe to Use'];
     foreach ($itemRows as $index=>$item) {
         foreach ($required as $key=>$label) if (trim((string)($item[$key]??''))==='') $missing[] = eye_bolt_blocker('item','eye_bolt_items.'.($index+1).'.'.$key,'Row '.($index+1).' - '.$label,'Eye Bolt Examination Register','No value has been saved.');
-        foreach (['last_thorough_examination_date','next_thorough_examination_date'] as $key) if (($item[$key]??'')!=='' && !valid_iso_date((string)$item[$key])) $errors['eye_bolt_items.'.($index+1).'.'.$key] = 'Row '.($index+1).' has an invalid '.str_replace('_',' ',$key).'.';
+        if (($item['last_thorough_examination_date']??'')!=='' && !valid_partial_date((string)$item['last_thorough_examination_date'])) $errors['eye_bolt_items.'.($index+1).'.last_thorough_examination_date'] = 'Row '.($index+1).' has an invalid historical examination date.';
+        if (($item['next_thorough_examination_date']??'')!=='' && !valid_iso_date((string)$item['next_thorough_examination_date'])) $errors['eye_bolt_items.'.($index+1).'.next_thorough_examination_date'] = 'Row '.($index+1).' next thorough examination must be a complete valid date.';
         if (!in_array(strtoupper((string)($item['reason_for_examination_code']??'')),['A','B','C','D','E'],true)) $errors['eye_bolt_items.'.($index+1).'.reason_for_examination_code'] = 'Row '.($index+1).' reason code must be A, B, C, D or E.';
         if (!in_array(strtoupper((string)($item['status_code']??'')),['ND','SDR','NF','OBS'],true)) $errors['eye_bolt_items.'.($index+1).'.status_code'] = 'Row '.($index+1).' status must be ND, SDR, NF or OBS.';
         if (!in_array(strtolower((string)($item['safe_to_use']??'')),['yes','no'],true)) $errors['eye_bolt_items.'.($index+1).'.safe_to_use'] = 'Row '.($index+1).' Safe to Use must be Yes or No.';
@@ -84,6 +85,5 @@ function eye_bolt_payload(array $inspection, array $rows, array $items, string $
 
 function eye_bolt_date(string $value): string
 {
-    $time = strtotime($value);
-    return $time === false ? $value : date('d/m/Y',$time);
+    return format_juva_partial_date($value);
 }

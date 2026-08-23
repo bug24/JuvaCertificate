@@ -14,7 +14,9 @@ function validate_equipment_payload(array $input, ?int $existingId = null): arra
     $safeWorkingLoad = array_key_exists('safe_working_load', $input) ? normalize_text_input((string) $input['safe_working_load']) : null;
     $location = array_key_exists('location', $input) ? normalize_text_input((string) $input['location']) : null;
     $referenceStandard = array_key_exists('reference_standard', $input) ? normalize_text_input((string) $input['reference_standard']) : null;
-    $manufactureDate = array_key_exists('manufacture_date', $input) ? trim((string) $input['manufacture_date']) : null;
+    $manufactureDateValue = array_key_exists('manufacture_date_value', $input) ? trim((string) $input['manufacture_date_value']) : (array_key_exists('manufacture_date', $input) ? trim((string) $input['manufacture_date']) : null);
+    $manufactureDatePrecision = $manufactureDateValue !== null && $manufactureDateValue !== '' ? partial_date_precision($manufactureDateValue) : null;
+    $manufactureDate = $manufactureDatePrecision === 'day' ? $manufactureDateValue : null;
     $status = isset($input['status']) ? (string) $input['status'] : 'active';
 
     if ($clientId <= 0) {
@@ -68,11 +70,15 @@ function validate_equipment_payload(array $input, ?int $existingId = null): arra
         $safeWorkingLoad = null;
     }
 
-    if ($manufactureDate !== null && $manufactureDate !== '') {
-        if (!valid_iso_date($manufactureDate)) {
-            $errors['manufacture_date'] = 'Use a valid date.';
+    if ($manufactureDateValue !== null && $manufactureDateValue !== '') {
+        if (!valid_partial_date($manufactureDateValue)) {
+            $errors['manufacture_date_value'] = 'Use a valid full date, month and year, or year.';
+        } elseif (isset($input['manufacture_date_precision']) && (string) $input['manufacture_date_precision'] !== $manufactureDatePrecision) {
+            $errors['manufacture_date_precision'] = 'Date precision does not match the entered value.';
         }
     } else {
+        $manufactureDateValue = null;
+        $manufactureDatePrecision = null;
         $manufactureDate = null;
     }
 
@@ -107,6 +113,8 @@ function validate_equipment_payload(array $input, ?int $existingId = null): arra
         'location' => $location !== '' ? $location : null,
         'reference_standard' => $referenceStandard !== '' ? $referenceStandard : null,
         'manufacture_date' => $manufactureDate,
+        'manufacture_date_value' => $manufactureDateValue,
+        'manufacture_date_precision' => $manufactureDatePrecision,
         'status' => $status,
     ]];
 }
@@ -122,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $needle = '%' . $search . '%';
         $params = [$needle, $needle, $needle, $needle];
     }
-    $sql = 'SELECT e.*, c.name AS client_name, (SELECT MAX(i.next_due_date) FROM inspections i WHERE i.equipment_id = e.id) AS next_due_date FROM equipment e JOIN clients c ON c.id = e.client_id';
+    $sql = 'SELECT e.*, c.name AS client_name, (SELECT MAX(i.next_due_date) FROM inspections i WHERE i.equipment_id = e.id) AS next_due_date, (SELECT i.inspection_date FROM inspections i WHERE i.equipment_id = e.id AND i.status IN (\'approved\',\'issued\',\'expired\',\'revoked\') ORDER BY i.inspection_date DESC, i.id DESC LIMIT 1) AS previous_examination_date FROM equipment e JOIN clients c ON c.id = e.client_id';
     if ($where) {
         $sql .= ' WHERE ' . implode(' AND ', $where);
     }
@@ -139,7 +147,7 @@ $input = json_input();
 if ($errors) {
     api_error('Please correct the highlighted fields.', 422, $errors);
 }
-$stmt = db()->prepare('INSERT INTO equipment (client_id, asset_code, name, manufacturer, model, serial_number, safe_working_load, location, manufacture_date, reference_standard, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+$stmt = db()->prepare('INSERT INTO equipment (client_id, asset_code, name, manufacturer, model, serial_number, safe_working_load, location, manufacture_date, manufacture_date_value, manufacture_date_precision, reference_standard, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 $stmt->execute([
     $payload['client_id'],
     $payload['asset_code'],
@@ -150,6 +158,8 @@ $stmt->execute([
     $payload['safe_working_load'],
     $payload['location'],
     $payload['manufacture_date'],
+    $payload['manufacture_date_value'],
+    $payload['manufacture_date_precision'],
     $payload['reference_standard'],
     $payload['status'],
     now_sql(),

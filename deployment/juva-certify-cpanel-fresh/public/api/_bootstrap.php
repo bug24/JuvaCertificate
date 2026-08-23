@@ -660,6 +660,8 @@ function valid_iso_date(?string $value): bool
     return $date instanceof DateTimeImmutable && $date->format('Y-m-d') === $value;
 }
 
+require_once __DIR__ . '/lib/partial_dates.php';
+
 function inspection_scope_clause(array $user, string $alias = 'i'): array
 {
     if (has_permission($user, '*') || has_permission($user, 'inspections.review') || has_permission($user, 'certificates.issue') || has_permission($user, 'users.manage')) {

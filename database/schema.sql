@@ -152,6 +152,8 @@ CREATE TABLE equipment (
   safe_working_load VARCHAR(100) NULL,
   location VARCHAR(255) NULL,
   manufacture_date DATE NULL,
+  manufacture_date_value VARCHAR(10) NULL,
+  manufacture_date_precision ENUM('day','month','year') NULL,
   reference_standard VARCHAR(200) NULL,
   status ENUM('active','out_of_service','retired') NOT NULL DEFAULT 'active',
   legacy_id BIGINT UNSIGNED NULL,

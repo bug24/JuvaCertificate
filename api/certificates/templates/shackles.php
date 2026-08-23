@@ -13,8 +13,8 @@ function shackles_layout_contract(): array
         'information_row' => ['employer', 'premises', 'status_legend'],
         'table_columns' => ['serial', 'identification', 'description', 'working_load', 'last_examination', 'manufacturer', 'next_examination', 'reason_code', 'test_details', 'status', 'safe_to_use'],
         'signatory_columns' => ['inspector', 'authenticator'],
-        'bottom_metadata' => ['certificate_number', 'examination_date', 'colour_code', 'standard'],
-        'certificate_number_position' => 'bottom_metadata',
+        'top_metadata' => ['certificate_number', 'examination_date', 'colour_code', 'standard'],
+        'certificate_number_position' => 'top_metadata',
         'populated_values_bold' => true,
     ];
 }
@@ -58,22 +58,23 @@ function shackles_render_certificate_pdf(string $path, array $p): void
     $put($im,certificate_runtime_asset('logo.png'),1940,20,330,190);
     $text($im,'JUVA-OIL SERVICES NIGERIA LIMITED',1168,130,42,$bold,'center');
     $text($im,'CERTIFICATE OF THOROUGH EXAMINATION',1168,215,35,$bold,'center');
-    $text($im,'SHACKLES',1168,255,27,$bold,'center');
+    $text($im,'SHACKLE',1168,255,27,$bold,'center');
     foreach(["This report complies with the Lifting Equipment Engineers Association's technical requirements",'The Lifting Operations and Lifting Equipment Regulations 1998 SI NO.2307','The Supply of Machinery (Safety) Regulation 1992 SI NO.3073','The Provision and Use of Work Equipment Regulations 1998 SI NO.2306','Nigeria Factories Act CAP F1 LFN, 2004'] as $i=>$regulation)$text($im,$regulation,1168,288+($i*24),17,$font,'center');
     $status=strtoupper((string)($p['status']??'VALID')); certificate_draw_status_badge($im,$status,2070,260,195,55,$bold,22);
 
-    $x=60;$w=2219;$y=465;$fields=$p['fields'];
+    $x=60;$w=2219;$y=420;$fields=$p['fields'];
+    $metaWidths=[520,630,500,569];$metaLabels=['CERTIFICATE NO:','DATE OF THIS THOROUGH EXAMINATION:','COLOUR CODE:','STANDARD:'];$metaValues=[strtoupper((string)$p['certificate_number']),shackles_date((string)$p['examination_date']),strtoupper((string)($fields['colour_code']??'')),strtoupper((string)($fields['standard']??''))];$cx=$x;foreach($metaWidths as $i=>$cw){$labelValueCell($im,$cx,$y,$cw,68,$metaLabels[$i],$metaValues[$i],13,17,'center');$cx+=$cw;}$y+=82;
     $clientW=840;$premW=720;$legendW=$w-$clientW-$premW;
     $labelValueCell($im,$x,$y,$clientW,115,'NAME AND ADDRESS OF EMPLOYER FOR WHOM THE THOROUGH EXAMINATION WAS MADE:',strtoupper((string)$p['client_name'])."\n".strtoupper((string)$p['client_address']),14,18);
     $labelValueCell($im,$x+$clientW,$y,$premW,115,'ADDRESS OF PREMISES AT WHICH THE EXAMINATION WAS MADE:',strtoupper((string)$p['inspection_location']),14,18,'center');
     $cell($im,$x+$clientW+$premW,$y,$legendW,115,"STATUS:\nND - NO DEFECT, SDR - SEE DEFECT REPORT\nNF - NOT FOUND, OBS - OBSERVATION (SEE DEFECT REPORT)",15,$font);$y+=115;
 
     $widths=[72,265,285,150,195,205,205,145,205,140,152];
-    $headers=['S/N','IDENTIFICATION NUMBER','DESCRIPTION','WLL OR SWL\n(TONNES)','DATE OF LAST THOROUGH EXAMINATION','MANUFACTURER','LATEST DATE OF NEXT THOROUGH EXAMINATION','REASON FOR EXAMINATION\n(SEE BELOW)','DETAILS OF ANY TEST','STATUS\n(SEE ABOVE)','SAFE TO USE\nYES / NO'];
+    $headers=["S/N","IDENTIFICATION NUMBER","DESCRIPTION","WLL OR SWL\n(TONNES)","DATE OF LAST\nTHOROUGH EXAMINATION","MANUFACTURER","LATEST DATE OF NEXT\nTHOROUGH EXAMINATION","REASON FOR EXAMINATION\n(SEE BELOW)","DETAILS OF ANY TEST","STATUS\n(SEE ABOVE)","SAFE TO USE\nYES / NO"];
     $cx=$x;foreach($widths as $i=>$cw){$cell($im,$cx,$y,$cw,96,$headers[$i],15,$font,'center');$cx+=$cw;}$y+=96;
     $items=$p['items'];$rowH=count($items)>4?58:(count($items)>2?68:82);
     foreach($items as $index=>$item){
-        $serial=shackles_item_value($item,['serial_number'],(string)($index+1));
+        $serial=(string)($index+1);
         $values=[
             $serial,
             shackles_item_value($item,['identification_number','serial_number']),
@@ -109,9 +110,7 @@ function shackles_render_certificate_pdf(string $path, array $p): void
     if($attached==='yes')$tick($im,$x+$labelW+$ynW,$y,$markW,52);
     if($attached==='no')$tick($im,$x+$labelW+($ynW*2)+$markW,$y,$markW,52);
 
-    $metaY=max(1095,$y+88);$metaWidths=[520,630,500,569];$metaLabels=['CERTIFICATE NO:','DATE OF THIS THOROUGH EXAMINATION:','COLOUR CODE:','STANDARD:'];$metaValues=[strtoupper((string)$p['certificate_number']),shackles_date((string)$p['examination_date']),strtoupper((string)($fields['colour_code']??'')),strtoupper((string)($fields['standard']??''))];$cx=$x;foreach($metaWidths as $i=>$cw){$meta($im,$cx,$metaY,$cw,$metaLabels[$i],$metaValues[$i]);$cx+=$cw;}
-
-    $footerY=$metaY+85;$put($im,$asset.'/bsi-logo.png',$x,$footerY,125,90);$put($im,$asset.'/leea-logo.png',$x+150,$footerY,115,90);$put($im,$asset.'/asnt-logo.png',$x+290,$footerY,150,90);
+    $footerY=$y+75;$put($im,$asset.'/bsi-logo.png',$x,$footerY,125,90);$put($im,$asset.'/leea-logo.png',$x+150,$footerY,115,90);$put($im,$asset.'/asnt-logo.png',$x+290,$footerY,150,90);
     $fit($im,strtoupper((string)$p['company']['name'])."\n".(string)$p['company']['operational']."\n".(string)$p['company']['phone'].' | '.(string)$p['company']['email'],$x+480,$footerY,1000,105,15,$font);
     if(class_exists('QRCode')){$qr=QRCode::getMinimumQRCode((string)$p['verification_url'],QR_ERROR_CORRECT_LEVEL_M);$n=(int)$qr->getModuleCount();$q=4;$m=5;$size=($n+8)*$m;$cardX=1680;$cardY=$footerY-16;$cardW=590;$cardH=225;imagefilledrectangle($im,$cardX,$cardY,$cardX+$cardW,$cardY+$cardH,certificate_color($im,'#FFFFFF'));imagerectangle($im,$cardX,$cardY,$cardX+$cardW,$cardY+$cardH,certificate_color($im,'#1F4B45'));$qx=$cardX+$cardW-$size-16;$qy=$cardY+12;imagefilledrectangle($im,$qx,$qy,$qx+$size,$qy+$size,certificate_color($im,'#FFFFFF'));for($r=0;$r<$n;$r++)for($c=0;$c<$n;$c++)if($qr->isDark($r,$c))imagefilledrectangle($im,$qx+(($c+$q)*$m),$qy+(($r+$q)*$m),$qx+(($c+$q+1)*$m)-1,$qy+(($r+$q+1)*$m)-1,certificate_color($im,'#000000'));certificate_draw_text($im,'VERIFY WITH INTEGRITY',$cardX+18,$cardY+48,18,'#1F4B45',$bold);certificate_draw_text($im,'Scan to verify this certificate',$cardX+18,$cardY+82,15,'#333333',$font);certificate_draw_text($im,'against JUVA Oil live records.',$cardX+18,$cardY+108,15,'#333333',$font);certificate_draw_text($im,'AUTHENTIC  |  TRACEABLE  |  SECURE',$cardX+18,$cardY+157,13,'#1F4B45',$bold);certificate_draw_text($im,'SCAN TO VERIFY',$qx+(int)($size/2),$cardY+$cardH-12,13,'#1F4B45',$bold,'center');}
     if($cardY+$cardH>1644)throw new RuntimeException('Shackles certificate content exceeds the one-page landscape layout.');

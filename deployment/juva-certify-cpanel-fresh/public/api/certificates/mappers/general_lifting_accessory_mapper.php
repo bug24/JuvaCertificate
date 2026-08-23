@@ -101,10 +101,11 @@ function general_lifting_accessory_readiness(array $inspection, array $rows, arr
                 $missing[] = general_lifting_accessory_blocker('item', 'general_lifting_accessory_items.' . ($index + 1) . '.' . $key, 'Row ' . ($index + 1) . ' - ' . $label, 'General Lifting Accessory Register', 'No value has been saved.');
             }
         }
-        foreach (['last_thorough_examination_date', 'next_thorough_examination_date'] as $key) {
-            if (($item[$key] ?? '') !== '' && !valid_iso_date((string) $item[$key])) {
-                $errors['general_lifting_accessory_items.' . ($index + 1) . '.' . $key] = 'Row ' . ($index + 1) . ' has an invalid ' . str_replace('_', ' ', $key) . '.';
-            }
+        if (($item['last_thorough_examination_date'] ?? '') !== '' && !valid_partial_date((string) $item['last_thorough_examination_date'])) {
+            $errors['general_lifting_accessory_items.' . ($index + 1) . '.last_thorough_examination_date'] = 'Row ' . ($index + 1) . ' has an invalid historical examination date.';
+        }
+        if (($item['next_thorough_examination_date'] ?? '') !== '' && !valid_iso_date((string) $item['next_thorough_examination_date'])) {
+            $errors['general_lifting_accessory_items.' . ($index + 1) . '.next_thorough_examination_date'] = 'Row ' . ($index + 1) . ' next thorough examination must be a complete valid date.';
         }
         if (!in_array(strtoupper((string) ($item['reason_for_examination_code'] ?? '')), ['A', 'B', 'C', 'D', 'E'], true)) {
             $errors['general_lifting_accessory_items.' . ($index + 1) . '.reason_for_examination_code'] = 'Row ' . ($index + 1) . ' reason code must be A, B, C, D or E.';

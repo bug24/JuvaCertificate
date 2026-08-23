@@ -7,12 +7,29 @@ type ApiRequest = <T>(path: string, options?: RequestInit, csrf?: string) => Pro
 type Props = { page: "clients" | "equipment"; csrf: string; request: ApiRequest; canManage: boolean };
 
 const clientFields = ["registration_code", "short_code", "name", "contact_person", "phone", "email", "address", "status"];
-const equipmentFields = ["client_id", "asset_code", "name", "manufacturer", "model", "serial_number", "safe_working_load", "location", "manufacture_date", "reference_standard", "status"];
+const equipmentFields = ["client_id", "asset_code", "name", "manufacturer", "model", "serial_number", "safe_working_load", "location", "manufacture_date_value", "reference_standard", "status"];
+function PartialDateInput({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const detectedPrecision = /^\d{4}$/.test(value) ? "year" : /^\d{4}-\d{2}$/.test(value) ? "month" : "day";
+  const [precision, setPrecision] = useState(detectedPrecision);
+  useEffect(() => { if (value) setPrecision(detectedPrecision); }, [value, detectedPrecision]);
+  return <div className="partial-date-control">
+    <span>Date precision</span>
+    <select value={precision} onChange={(event) => { setPrecision(event.target.value); onChange(""); }}>
+      <option value="day">Full date</option>
+      <option value="month">Month + year</option>
+      <option value="year">Year only</option>
+    </select>
+    {precision === "day" && <input type="date" value={value} onChange={(event) => onChange(event.target.value)} />}
+    {precision === "month" && <input type="month" value={value} onChange={(event) => onChange(event.target.value)} />}
+    {precision === "year" && <input type="text" inputMode="numeric" pattern="[0-9]{4}" maxLength={4} placeholder="YYYY" value={value} onChange={(event) => onChange(event.target.value.replace(/\D/g, "").slice(0, 4))} />}
+  </div>;
+}
+
 const labels: Record<string, string> = {
   registration_code: "Registration code", short_code: "Short code", name: "Name", contact_person: "Contact person",
   phone: "Phone", email: "Email", address: "Address", status: "Status", client_id: "Client", asset_code: "Asset code",
   manufacturer: "Manufacturer", model: "Model", serial_number: "Serial number", safe_working_load: "SWL / capacity",
-  location: "Location", manufacture_date: "Manufacture date", reference_standard: "Reference standard",
+  location: "Location", manufacture_date: "Manufacture date", manufacture_date_value: "Manufacture date", reference_standard: "Reference standard",
 };
 
 export function RecordManagementPage({ page, csrf, request, canManage }: Props) {
@@ -85,7 +102,8 @@ export function RecordManagementPage({ page, csrf, request, canManage }: Props) 
       return <select value={value(key) || "active"} onChange={e => set(key, e.target.value)}>{options.map(([id, text]) => <option key={id} value={id}>{text}</option>)}</select>;
     }
     if (key === "address") return <textarea value={value(key)} onChange={e => set(key, e.target.value)} />;
-    return <input type={key === "email" ? "email" : key === "manufacture_date" ? "date" : "text"} value={value(key)} onChange={e => set(key, key === "short_code" ? e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "") : e.target.value)} />;
+    if (key === "manufacture_date_value") return <PartialDateInput value={value(key)} onChange={(next) => set(key, next)} />;
+    return <input type={key === "email" ? "email" : "text"} value={value(key)} onChange={e => set(key, key === "short_code" ? e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "") : e.target.value)} />;
   }
 
   const columns = isClient ? ["registration_code", "short_code", "name", "contact_person", "phone", "status", "equipment_count"] : ["asset_code", "name", "client_name", "serial_number", "safe_working_load", "next_due_date", "status"];

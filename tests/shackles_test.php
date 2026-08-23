@@ -14,8 +14,8 @@ function shackles_test_assert(bool $condition, string $message): void
     }
 }
 
-$inspection=['id'=>999,'inspection_date'=>'2026-08-11','next_due_date'=>'2027-02-11','location'=>'Port Harcourt','client_name'=>'TEST CLIENT','client_address'=>'Test Address','equipment_name'=>'Test Bow Shackle','asset_code'=>'SHK-001','inspector_name'=>'Test Inspector','inspector_qualification'=>'LEEA'];
-$values=['client_address'=>'Test Address','inspection_location'=>'Port Harcourt','accessory_type'=>'Bow Shackle','size_marking'=>'25 mm','manufacturer'=>'Crosby','standard'=>'BS EN 13889','colour_code'=>'BLUE','safe_working_load'=>'25 TONNES','pin_condition'=>'pass','body_distortion_check'=>'pass','defect_observation_sheet_attached'=>'No'];
+$inspection=['id'=>999,'inspection_date'=>'2026-08-11','next_due_date'=>'2027-02-11','location'=>'Port Harcourt','client_name'=>'TEST CLIENT','client_address'=>'Test Address','equipment_name'=>'Test Bow Shackle','asset_code'=>'SHK-001','equipment_serial_number'=>'SHK-001','equipment_manufacturer'=>'Crosby','equipment_safe_working_load'=>'25 TONNES','equipment_standard'=>'BS EN 13889','equipment_manufacture_date_value'=>'2029','previous_examination_date'=>'2026-02','inspector_name'=>'Test Inspector','inspector_qualification'=>'LEEA'];
+$values=['client_address'=>'Test Address','inspection_location'=>'Port Harcourt','accessory_type'=>'Bow Shackle','size_marking'=>'25 mm','manufacturer'=>'Crosby','standard'=>'BS EN 13889','colour_code'=>'BLUE','safe_working_load'=>'25 TONNES','pin_condition'=>'pass','body_distortion_check'=>'pass','defect_observation_sheet_attached'=>'No','reason_for_examination_code'=>'B'];
 $rows=[];
 foreach($values as $key=>$value) $rows[]=['field_key'=>$key,'label'=>$key,'is_required'=>1,'value_text'=>$value];
 $itemValues=['serial_number'=>'1','identification_number'=>'SHK-001','description'=>'SCREW PIN BOW SHACKLE','working_load_limit'=>'25 TONNES','swl_wll'=>'25 TONNES','last_thorough_examination_date'=>'2026-02-11','date_last_examined'=>'2026-02-11','manufacturer'=>'CROSBY','next_thorough_examination_date'=>'2027-02-11','reason_for_examination_code'=>'B','test_details'=>'VISUAL EXAMINATION','remarks'=>'VISUAL EXAMINATION','status_code'=>'ND','status'=>'ND','safe_to_use'=>'YES'];
@@ -33,13 +33,17 @@ $p['authenticator_qualification']='LEEA LMM';
 shackles_test_assert($p['certificate_number']===$canonicalNumber,'mapper must preserve the engine-supplied canonical certificate number');
 $contract=shackles_layout_contract();
 shackles_test_assert($contract['information_row']===['employer','premises','status_legend'],'upper information row must preserve the original three-part structure');
-shackles_test_assert($contract['certificate_number_position']==='bottom_metadata','certificate number must return to the original bottom metadata block');
+shackles_test_assert($contract['certificate_number_position']==='top_metadata','certificate number must appear in the mandated top metadata line');
 shackles_test_assert($contract['table_columns']===['serial','identification','description','working_load','last_examination','manufacturer','next_examination','reason_code','test_details','status','safe_to_use'],'main table order must match the original document');
 shackles_test_assert($contract['signatory_columns']===['inspector','authenticator'],'original two-column signatory structure must remain');
-shackles_test_assert($contract['bottom_metadata']===['certificate_number','examination_date','colour_code','standard'],'bottom metadata order must match the original document');
+shackles_test_assert($contract['top_metadata']===['certificate_number','examination_date','colour_code','standard'],'top metadata order must match the mandated document');
 shackles_test_assert($contract['populated_values_bold']===true,'entered values must render bold');
 shackles_test_assert(shackles_item_value($p['items'][0],['identification_number','serial_number'])==='SHK-001','current identification field must map to the original identification column');
 shackles_test_assert(shackles_item_value(['serial_number'=>'LEGACY-1'],['identification_number','serial_number'])==='LEGACY-1','legacy Shackles identifiers must retain a safe renderer fallback');
+shackles_test_assert(($p['fields']['date_of_manufacture']??'')==='2029','year-only manufacture date must retain its precision');
+shackles_test_assert(($p['items'][0]['date_last_examined']??'')==='2026-02','month/year previous examination date must retain its precision');
+shackles_test_assert(shackles_date('2029')==='2029','renderer must not invent month or day');
+shackles_test_assert(shackles_date('2026-02')==='02/2026','renderer must preserve month/year precision');
 echo "SHACKLES ORIGINAL LAYOUT CONTRACT: PASS\n";
 
 $dir=sys_get_temp_dir().'/juva-shackles-visual-correction';

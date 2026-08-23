@@ -100,8 +100,7 @@ function chain_block_payload(array $inspection, array $rows, string $number, int
 
 function chain_block_date(string $value): string
 {
-    $time = strtotime($value);
-    return $time === false ? $value : date('d/m/Y', $time);
+    return format_juva_partial_date($value);
 }
 
 function chain_block_render_certificate_pdf(string $path, array $p): void

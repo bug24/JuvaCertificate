@@ -62,7 +62,7 @@ function validate_inspection_values(array $inputValues, array $fieldRows, bool $
                 $normalized[(int) $fieldId] = (string) $value;
                 break;
             case 'date':
-                if (!valid_iso_date($value)) {
+                if (supports_partial_historical_date_key((string) $field['field_key']) ? !valid_partial_date($value) : !valid_iso_date($value)) {
                     $errors['field_' . $fieldId] = $field['label'] . ' must use a valid date.';
                     break;
                 }

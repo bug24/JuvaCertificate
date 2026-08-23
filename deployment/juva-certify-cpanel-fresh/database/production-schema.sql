@@ -342,6 +342,8 @@ CREATE TABLE `equipment` (
   `safe_working_load` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `manufacture_date` date DEFAULT NULL,
+  `manufacture_date_value` varchar(10) DEFAULT NULL,
+  `manufacture_date_precision` enum('day','month','year') DEFAULT NULL,
   `reference_standard` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` enum('active','out_of_service','retired') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
   `legacy_id` bigint(20) unsigned DEFAULT NULL,
