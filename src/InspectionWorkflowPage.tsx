@@ -191,6 +191,7 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
   const selectedEquipment = equipment.find((item) => String(item.id) === String(form.equipment_id || ""));
   const selectedClient = clients.find((item) => String(item.id) === String(form.client_id || ""));
   const isShackles = String(selectedCategory?.template_family || "") === "shackles";
+  const hasPreviousExamination = Boolean(String(selectedEquipment?.previous_examination_date || "").trim());
   const isGeneralCategory = ["general_lifting_accessory", "general_thorough_examination"].includes(String(selectedCategory?.template_family || ""));
   const dedicatedSuggestions = useMemo(() => {
     if (!isGeneralCategory || !selectedEquipment) return [];
@@ -340,7 +341,8 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
       for (const field of fields) {
         const key = String(field.field_key || "");
         const currentValue = String(next[String(field.id)] || "");
-        if (Object.prototype.hasOwnProperty.call(authoritative, key) && (isShackles ? currentValue !== authoritative[key] : !currentValue.trim() && Boolean(authoritative[key]))) {
+        const missingPreviousExamination = key === "date_of_previous_examination" && !hasPreviousExamination;
+        if (Object.prototype.hasOwnProperty.call(authoritative, key) && !missingPreviousExamination && (isShackles ? currentValue !== authoritative[key] : !currentValue.trim() && Boolean(authoritative[key]))) {
           next[String(field.id)] = authoritative[key];
           changed = true;
         }
@@ -369,7 +371,8 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
         for (const column of section.columns || []) {
           const key = String(column.column_key || "");
           const currentValue = String(row[key] || "");
-          if (Object.prototype.hasOwnProperty.call(defaults, key) && (isShackles ? currentValue !== defaults[key] : !currentValue.trim() && Boolean(defaults[key]))) {
+          const missingPreviousExamination = ["date_last_examined", "last_thorough_examination_date"].includes(key) && !hasPreviousExamination;
+          if (Object.prototype.hasOwnProperty.call(defaults, key) && !missingPreviousExamination && (isShackles ? currentValue !== defaults[key] : !currentValue.trim() && Boolean(defaults[key]))) {
             row[key] = defaults[key];
             changed = true;
           }
@@ -379,7 +382,7 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
       }
       return changed ? next : current;
     });
-  }, [isShackles, selectedEquipment, selectedClient, form.location, form.next_due_date, fields, sections]);
+  }, [isShackles, hasPreviousExamination, selectedEquipment, selectedClient, form.location, form.next_due_date, fields, sections]);
 
   function renderProfileField(field: RecordRow): ReactNode | null {
     const key = String(field.field_key || "");
@@ -462,7 +465,7 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
     const type = String(field.field_type);
     const placeholder = field.placeholder_text || "";
     const key = String(field.field_key || "");
-    const authoritative = isShackles && ["client_address", "inspection_location", "accessory_type", "manufacturer", "standard", "date_of_manufacture", "date_of_previous_examination", "safe_working_load"].includes(key);
+    const authoritative = isShackles && ["client_address", "inspection_location", "accessory_type", "manufacturer", "standard", "date_of_manufacture", "date_of_previous_examination", "safe_working_load"].includes(key) && (key !== "date_of_previous_examination" || hasPreviousExamination);
     if (partialDateKey(key)) return <PartialDateInput value={value} disabled={authoritative} onChange={(next) => setDynamicValue(Number(field.id), next)} />;
     if (type === "textarea") return <textarea value={value} onChange={(e) => setDynamicValue(Number(field.id), e.target.value)} placeholder={placeholder} />;
     if (type === "select" || type === "pass_fail") {
@@ -484,7 +487,8 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
     const value = items[sectionKey]?.[rowIndex]?.[String(column.column_key)] || "";
     const type = String(column.column_type);
     const key = String(column.column_key || "");
-    const authoritative = isShackles && rowIndex === 0 && ["identification_number", "serial_number", "description", "swl_wll", "working_load_limit", "manufacturer", "date_last_examined", "last_thorough_examination_date"].includes(key);
+    const historicalExaminationKey = ["date_last_examined", "last_thorough_examination_date"].includes(key);
+    const authoritative = isShackles && rowIndex === 0 && ["identification_number", "serial_number", "description", "swl_wll", "working_load_limit", "manufacturer", "date_last_examined", "last_thorough_examination_date"].includes(key) && (!historicalExaminationKey || hasPreviousExamination);
     if (partialDateKey(key)) return <PartialDateInput value={value} disabled={authoritative} onChange={(next) => updateSectionCell(sectionKey, rowIndex, key, next)} />;
     if (type === "textarea") {
       return <textarea value={value} onChange={(e) => updateSectionCell(sectionKey, rowIndex, String(column.column_key), e.target.value)} placeholder={column.placeholder_text || ""} />;
@@ -1010,7 +1014,6 @@ export function EnhancedInspectionWorkflowPage({ csrf, user, apiBase, request, o
     </Panel>
   </>;
 }
-
 
 
 

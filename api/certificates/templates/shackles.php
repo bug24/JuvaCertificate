@@ -98,8 +98,9 @@ function shackles_render_certificate_pdf(string $path, array $p): void
     $labelValueCell($im,$x+$signW,$y,$w-$signW,$signH,'SIGNATURE OF PERSON AUTHENTICATING THIS REPORT:',strtoupper((string)$p['authenticator_name'])."\n".strtoupper((string)$p['authenticator_qualification']),14,18);
     $text($im,'SIGNATURE:',$x+6,$y+$signH-9,14,$font);$text($im,'SIGNATURE:',$x+$signW+6,$y+$signH-9,14,$font);
     $auth=is_array($p['authentication']??null)?$p['authentication']:[];
-    if(!empty($auth['inspector_signature_path']))$put($im,(string)$auth['inspector_signature_path'],$x+700,$y+78,230,54);
-    if(!empty($auth['authenticator_signature_path']))$put($im,(string)$auth['authenticator_signature_path'],$x+$signW+700,$y+78,230,54);
+    if(!empty($auth['inspector_signature_path']))$put($im,(string)$auth['inspector_signature_path'],$x+650,$y+64,320,76);
+    if(!empty($auth['company_stamp_path']))$put($im,(string)$auth['company_stamp_path'],$x+$signW+340,$y+40,270,100);
+    if(!empty($auth['authenticator_signature_path']))$put($im,(string)$auth['authenticator_signature_path'],$x+$signW+680,$y+64,320,76);
     $y+=$signH;
 
     $labelW=470;$ynW=90;$markW=70;

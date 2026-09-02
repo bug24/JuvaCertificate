@@ -27,4 +27,5 @@ partial_date_assert(is_string($workflowSource) && strpos($workflowSource, 'manuf
 $recordSource = file_get_contents(__DIR__ . '/../src/RecordManagementPage.tsx');
 $yearInputGuard = 'if (/^\d{4}(-\d{2}(-\d{2})?)?$/.test(value))';
 partial_date_assert(is_string($recordSource) && strpos($recordSource, $yearInputGuard) !== false && is_string($workflowSource) && strpos($workflowSource, $yearInputGuard) !== false, '11. incomplete year input retains the selected year precision while typing');
+partial_date_assert(strpos($workflowSource, 'key !== "date_of_previous_examination" || hasPreviousExamination') !== false && strpos($workflowSource, '!historicalExaminationKey || hasPreviousExamination') !== false, '12. newly registered equipment keeps previous examination date controls editable');
 echo "PARTIAL DATE REGRESSION TESTS: PASS\n";
