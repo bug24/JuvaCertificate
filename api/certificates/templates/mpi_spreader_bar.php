@@ -55,12 +55,12 @@ function mpi_spreader_bar_render_certificate_pdf(string $path,array $p):void
     $cell($im,$x,$y,$signW,118,"INSPECTOR\n".strtoupper((string)$p['inspector_name'])."\n".strtoupper((string)$p['inspector_qualification'])."\nSIGNATURE:",15,$font);
     $cell($im,$x+$signW,$y,$signW,118,"AUTHENTICATOR\n".strtoupper((string)$p['authenticator_name'])."\n".strtoupper((string)$p['authenticator_qualification'])."\nSIGNATURE:",15,$font);
     $cell($im,$x+($signW*2),$y,$w-($signW*2),118,"NEXT THOROUGH EXAMINATION\n".mpi_spreader_bar_date((string)$p['next_examination_date']),18,$bold,'center');
-    if(!empty($auth['inspector_signature_path']))$put($im,(string)$auth['inspector_signature_path'],$x+250,$y+55,200,52);
-    if(!empty($auth['authenticator_signature_path']))$put($im,(string)$auth['authenticator_signature_path'],$x+$signW+250,$y+55,200,52);$y+=118;
+    if(!empty($auth['inspector_signature_path']))$put($im,(string)$auth['inspector_signature_path'],$x+210,$y+48,260,66);
+    if(!empty($auth['authenticator_signature_path']))$put($im,(string)$auth['authenticator_signature_path'],$x+$signW+210,$y+48,260,66);$y+=118;
     $company=$p['company'];$cell($im,$x,$y,$w,74,"NAME AND ADDRESS OF COMPANY AUTHENTICATING THIS REPORT: ".strtoupper((string)$company['name']),16,$font);$y+=84;
     imagearc($im,$x,$y,$w,132,0,360,certificate_color($im,'#222'));imagerectangle($im,$x,$y,$x+$w,$y+132,certificate_color($im,'#222'));
     $wrap($im,"OFFICE: ".$company['registered']."\n\nOPERATIONAL BASE: ".$company['operational'],$x+18,$y+38,$w-36,18,$black,$font,28,'left',4);
-    if(!empty($auth['company_stamp_path']))$put($im,(string)$auth['company_stamp_path'],$x+$w-270,$y+18,230,96);$y+=155;
+    if(!empty($auth['company_stamp_path']))$put($im,(string)$auth['company_stamp_path'],$x+$w-310,$y+10,270,112);$y+=155;
     $put($im,$asset.'/bsi-logo.png',$x+20,$y,130,78);$put($im,$asset.'/asnt-logo.png',$x+180,$y,130,78);$put($im,$asset.'/acebi-logo.png',$x+340,$y,145,78);
     if(class_exists('QRCode')){
         $qr=QRCode::getMinimumQRCode((string)$p['verification_url'],QR_ERROR_CORRECT_LEVEL_M);$count=$qr->getModuleCount();$module=5;$quiet=4;$size=($count+8)*$module;$qx=$x+$w-$size-15;$qy=$y-10;

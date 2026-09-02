@@ -29,6 +29,15 @@ function certificate_active_profile_signature(?array $user): array
     return $path ? [$path, $key] : [null, null];
 }
 
+function certificate_active_company_stamp(): array
+{
+    $branding = db()->query('SELECT company_stamp_path,company_stamp_is_active FROM certificate_branding_settings WHERE id=1 LIMIT 1')->fetch() ?: [];
+    if ((int) ($branding['company_stamp_is_active'] ?? 0) !== 1 || empty($branding['company_stamp_path'])) return [null, null];
+    $key = (string) $branding['company_stamp_path'];
+    $path = resolve_storage_path($key);
+    return $path ? [$path, $key] : [null, null];
+}
+
 function certificate_apply_identity_to_field_rows(array $fieldRows, array $authentication): array
 {
     $values = [
@@ -81,13 +90,7 @@ function certificate_authentication_assets_unsafe(array $inspection, array $fiel
     [$authenticatorPath, $authenticatorKey] = certificate_active_profile_signature($authenticator);
     $authenticatorSource = $authenticatorPath ? 'user_profile' : 'none';
 
-    $branding = db()->query('SELECT * FROM certificate_branding_settings WHERE id=1 LIMIT 1')->fetch() ?: [];
-    $stampPath = null;
-    $stampKey = null;
-    if ((int) ($branding['company_stamp_is_active'] ?? 0) === 1 && !empty($branding['company_stamp_path'])) {
-        $stampKey = (string) $branding['company_stamp_path'];
-        $stampPath = resolve_storage_path($stampKey);
-    }
+    [$stampPath, $stampKey] = certificate_active_company_stamp();
 
     return [
         'inspector_signature_path' => $inspectorPath,

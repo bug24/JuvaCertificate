@@ -41,7 +41,12 @@ shackles_test_assert($contract['populated_values_bold']===true,'entered values m
 $templateSource = file_get_contents(__DIR__.'/../api/certificates/templates/shackles.php');
 shackles_test_assert(is_string($templateSource) && strpos($templateSource, '$widths=[72,285,315,170,215,225,225,155,225,150,182];') !== false, 'main table rows must span the full 2219-pixel form width');
 shackles_test_assert(strpos($templateSource, "['company_stamp_path']") !== false, 'active snapshotted company stamp must render in the Shackles signatory section');
-shackles_test_assert(strpos($templateSource, '320,76') !== false, 'Shackles signatures must use the enlarged render bounds');
+shackles_test_assert(strpos($templateSource, '330,82') !== false, 'Shackles signatures must use the enlarged render bounds beside the signatory names');
+shackles_test_assert(strpos($templateSource, '330,118') !== false, 'Shackles must render a prominent company stamp in the authenticator signatory section');
+$engineSource = file_get_contents(__DIR__ . '/../api/lib/certificate_engine.php');
+$downloadSource = file_get_contents(__DIR__ . '/../api/lib/certificate_download_renderer.php');
+shackles_test_assert(is_string($engineSource) && strpos($engineSource, '$auth[\'company_stamp_path\']=null') === false, 'issuance must not suppress the active global company stamp by template flag');
+shackles_test_assert(is_string($downloadSource) && strpos($downloadSource, "certificate_active_company_stamp()") !== false, 'archived certificates without an earlier stamp snapshot must use the current active global stamp');
 shackles_test_assert(shackles_item_value($p['items'][0],['identification_number','serial_number'])==='SHK-001','current identification field must map to the original identification column');
 shackles_test_assert(shackles_item_value(['serial_number'=>'LEGACY-1'],['identification_number','serial_number'])==='LEGACY-1','legacy Shackles identifiers must retain a safe renderer fallback');
 shackles_test_assert(($p['fields']['date_of_manufacture']??'')==='2029','year-only manufacture date must retain its precision');

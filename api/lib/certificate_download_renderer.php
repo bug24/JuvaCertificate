@@ -9,6 +9,8 @@ function certificate_revision_authentication(array $revision): array
     $inspectorKey = (string) ($revision['inspector_signature_path_snapshot'] ?? '');
     $authenticatorKey = (string) ($revision['authenticator_signature_path_snapshot'] ?? '');
     $stampKey = (string) ($revision['company_stamp_path_snapshot'] ?? '');
+    $stampPath = $stampKey !== '' ? resolve_storage_path($stampKey) : null;
+    if (!$stampPath) [$stampPath, $stampKey] = certificate_active_company_stamp();
     return [
         'inspector_signature_path' => $inspectorKey !== '' ? resolve_storage_path($inspectorKey) : null,
         'inspector_signature_source' => (string) ($revision['inspector_signature_source'] ?? 'none'),
@@ -16,7 +18,7 @@ function certificate_revision_authentication(array $revision): array
         'authenticator_signature_path' => $authenticatorKey !== '' ? resolve_storage_path($authenticatorKey) : null,
         'authenticator_signature_source' => (string) ($revision['authenticator_signature_source'] ?? 'none'),
         'authenticator_signature_storage_key' => $authenticatorKey !== '' ? $authenticatorKey : null,
-        'company_stamp_path' => $stampKey !== '' ? resolve_storage_path($stampKey) : null,
+        'company_stamp_path' => $stampPath,
         'company_stamp_storage_key' => $stampKey !== '' ? $stampKey : null,
         'inspector_name_snapshot' => (string) ($revision['inspector_name_snapshot'] ?? ''),
         'inspector_qualifications_snapshot' => (string) ($revision['inspector_qualifications_snapshot'] ?? ''),
@@ -87,9 +89,6 @@ function certificate_render_existing_download(array $certificate): ?string
     else $payload = general_thorough_examination_payload($inspection,$rows,$number,$revisionNumber,$verify,$issued,$expiry);
 
     $authentication = certificate_revision_authentication($revision);
-    if ((int) ($inspection['show_inspector_signature'] ?? 1) !== 1) $authentication['inspector_signature_path'] = null;
-    if ((int) ($inspection['show_authenticator_signature'] ?? 1) !== 1) $authentication['authenticator_signature_path'] = null;
-    if ((int) ($inspection['show_company_stamp'] ?? 0) !== 1) $authentication['company_stamp_path'] = null;
     $payload = certificate_apply_revision_identity($payload, $authentication);
     $payload['status'] = certificate_effective_status($certificate);
 

@@ -416,13 +416,13 @@ function ccu_render_certificate_pdf(string $path, array $payload): void
     $cell($x, $y, $sx(200), $sy(52), "Name & Qualifications of person making this report:\n" . ccu_value($payload, 'inspector_name') . "\n" . ccu_value($payload, 'inspector_qualifications') . "\nSIGNATURE:", 14, true);
     $cell($x + $sx(200), $y, $w - $sx(200), $sy(52), "Name of person signing or authenticating this report on behalf of the author:\n" . ccu_value($payload, 'authenticator_name') . "\n" . ccu_value($payload, 'authenticator_qualifications') . "\nSIGNATURE:", 14, true);
     $authentication = is_array($payload['authentication'] ?? null) ? $payload['authentication'] : [];
-    if (!empty($authentication['inspector_signature_path'])) { $putPng((string) $authentication['inspector_signature_path'], $x + $sx(12), $y + $sy(28), $sx(105), $sy(20), 100); }
-    if (!empty($authentication['authenticator_signature_path'])) { $putPng((string) $authentication['authenticator_signature_path'], $x + $sx(220), $y + $sy(28), $sx(120), $sy(20), 100); }
+    if (!empty($authentication['inspector_signature_path'])) { $putPng((string) $authentication['inspector_signature_path'], $x + $sx(10), $y + $sy(24), $sx(135), $sy(26), 100); }
+    if (!empty($authentication['authenticator_signature_path'])) { $putPng((string) $authentication['authenticator_signature_path'], $x + $sx(215), $y + $sy(24), $sx(145), $sy(26), 100); }
 
     $y += $sy(52);
     $cell($x, $y, $sx(280), $sy(48), "REGISTERED ADDRESS:\n" . (string) $payload['company']['registered'] . "\nPhone: " . (string) $payload['company']['phone'], 15, false);
     $cell($x + $sx(280), $y, $w - $sx(280), $sy(48), "OPERATIONAL ADDRESS:\n" . (string) $payload['company']['operational'] . "\nEmail: " . (string) $payload['company']['email'] . ", Website: " . (string) $payload['company']['website'] . "\nPhone: " . (string) $payload['company']['phone'], 15, false);
-    if (!empty($authentication['company_stamp_path'])) { $putPng((string) $authentication['company_stamp_path'], $x + $w - $sx(95), $y + $sy(5), $sx(80), $sy(38), 100); }
+    if (!empty($authentication['company_stamp_path'])) { $putPng((string) $authentication['company_stamp_path'], $x + $w - $sx(140), $y + $sy(2), $sx(120), $sy(44), 100); }
 
     $footerY = $y + $sy(48) + $sy(10);
     $putPng($assetDir . '/bsi-logo.png', $sx(94), $footerY + $sy(6), $sx(61), $sy(47), 100);

@@ -135,12 +135,12 @@ function flat_webbing_sling_render_certificate_pdf(string $path, array $p): void
     imagefilledrectangle($im, $x + ($signW * 2), $y, $x + $w, $y + 125, certificate_color($im, '#FDECEC'));
     $cell($im, $x + ($signW * 2), $y, $w - ($signW * 2), 125, "NEXT THOROUGH EXAMINATION DATE\n\n" . flat_webbing_sling_date((string) $p['next_examination_date']), 18, $bold, 'center');
     $authentication = is_array($p['authentication'] ?? null) ? $p['authentication'] : [];
-    if (!empty($authentication['inspector_signature_path'])) { $put($im, (string) $authentication['inspector_signature_path'], $x + 250, $y + 60, 185, 55); }
-    if (!empty($authentication['authenticator_signature_path'])) { $put($im, (string) $authentication['authenticator_signature_path'], $x + $signW + 250, $y + 60, 185, 55); }
+    if (!empty($authentication['inspector_signature_path'])) { $put($im, (string) $authentication['inspector_signature_path'], $x + 210, $y + 52, 250, 68); }
+    if (!empty($authentication['authenticator_signature_path'])) { $put($im, (string) $authentication['authenticator_signature_path'], $x + $signW + 210, $y + 52, 250, 68); }
     $y += 125;
     $company = $p['company'];
     $cell($im, $x, $y, $w, 105, strtoupper((string) $company['name']) . "\nREGISTERED: " . (string) $company['registered'] . " | OPERATIONAL: " . (string) $company['operational'] . "\nPHONE: " . (string) $company['phone'] . ' | EMAIL: ' . (string) $company['email'] . ' | WEBSITE: ' . (string) $company['website'], 15, $font);
-    if (!empty($authentication['company_stamp_path'])) { $put($im, (string) $authentication['company_stamp_path'], $x + $w - 220, $y + 10, 190, 82); }
+    if (!empty($authentication['company_stamp_path'])) { $put($im, (string) $authentication['company_stamp_path'], $x + $w - 280, $y + 3, 250, 100); }
     $y += 120;
     $put($im, $asset . '/bsi-logo.png', $x, $y, 125, 80);
     $put($im, $asset . '/leea-logo.png', $x + 145, $y, 115, 80);
